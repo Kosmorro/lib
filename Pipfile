@@ -1,0 +1,19 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pylintfileheader = "*"
+pylint = "*"
+babel = "*"
+unittest-data-provider = "*"
+coveralls = "*"
+
+[packages]
+skyfield = ">=1.32.0,<2.0.0"
+numpy = ">=1.17.0,<2.0.0"
+python-dateutil = "*"
+
+[requires]
+python_version = "3"
