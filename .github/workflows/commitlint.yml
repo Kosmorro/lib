@@ -2,9 +2,9 @@ name: Commit lint
 
 on:
   push:
-    branches: [master, features]
+    branches: [main, features]
   pull_request:
-    branches: [master, features]
+    branches: [main, features]
 
 jobs:
   commitlint:

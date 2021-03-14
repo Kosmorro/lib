@@ -2,9 +2,9 @@ name: Unit tests
 
 on:
   push:
-    branches: [master, features]
+    branches: [main, features]
   pull_request:
-    branches: [master, features]
+    branches: [main, features]
 
 jobs:
   legacy-unit-tests:
@@ -55,7 +55,6 @@ jobs:
           - '3.7'
           - '3.8'
           - '3.9'
-          - '3.10'
 
     name: Unit tests (Python ${{ matrix.python-version }} on ${{ matrix.os }})
     steps:
