@@ -181,7 +181,7 @@ def get_events(date: date_type, timezone: int = 0) -> [Event]:
     """Calculate and return a list of events for the given date, adjusted to the given timezone if any.
 
     Find events that happen on April 4th, 2020 (show hours in UTC):
-    
+
     >>> get_events(date_type(2020, 4, 4))
     [<Event type=CONJUNCTION objects=[<Object type=planet name=Mercury />, <Object type=planet name=Neptune />] start=2020-04-04 01:14:39.063308+00:00 end=None details=None />]
 

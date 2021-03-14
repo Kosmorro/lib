@@ -33,7 +33,7 @@ from .exceptions import OutOfRangeDateError
 RISEN_ANGLE = -0.8333
 
 
-def _get_skyfield_to_moon_phase(times: [Time], vals: [int], now: Time) -> Union[MoonPhaseType, None]:
+def _get_skyfield_to_moon_phase(times: [Time], vals: [int], now: Time) -> Union[MoonPhase, None]:
     tomorrow = get_timescale().utc(now.utc_datetime().year, now.utc_datetime().month, now.utc_datetime().day + 1)
 
     phases = list(MoonPhaseType)
@@ -65,12 +65,12 @@ def _get_skyfield_to_moon_phase(times: [Time], vals: [int], now: Time) -> Union[
             next_phase_time = times[j]
             break
 
-    return MoonPhaseType(current_phase,
+    return MoonPhase(current_phase,
                      current_phase_time.utc_datetime() if current_phase_time is not None else None,
                      next_phase_time.utc_datetime() if next_phase_time is not None else None)
 
 
-def get_moon_phase(compute_date: datetime.date, timezone: int = 0) -> MoonPhaseType:
+def get_moon_phase(compute_date: datetime.date, timezone: int = 0) -> MoonPhase:
     earth = get_skf_objects()['earth']
     moon = get_skf_objects()['moon']
     sun = get_skf_objects()['sun']
