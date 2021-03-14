@@ -16,6 +16,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .version import MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION, VERSION
+import __version__
+
 from .ephemerides import get_ephemerides
 from .events import get_events
