@@ -5,16 +5,15 @@ verify_ssl = true
 
 [dev-packages]
 pylintfileheader = "*"
-pylint = "*"
 babel = "*"
-unittest-data-provider = "*"
 coveralls = "*"
 parameterized = "*"
+black = "*"
 
 [packages]
 skyfield = ">=1.32.0,<2.0.0"
 numpy = ">=1.17.0,<2.0.0"
-python-dateutil = "*"
+python-dateutil = ">=2.8.0,<3.0.0"
 
 [requires]
 python_version = "3"

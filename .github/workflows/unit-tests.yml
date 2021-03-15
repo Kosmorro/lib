@@ -32,7 +32,8 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade pip pipenv
-        pipenv sync -d
+        pipenv lock --pre
+        pipenv sync --dev
     - name: Unit tests
       env:
         COVERALLS_PRO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
@@ -66,7 +67,8 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade pip pipenv
-        pipenv sync -d
+        pipenv lock --pre
+        pipenv sync --dev
     - name: Unit tests
       env:
         COVERALLS_PRO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
