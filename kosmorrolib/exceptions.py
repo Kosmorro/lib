@@ -30,8 +30,10 @@ class OutOfRangeDateError(RuntimeError):
         super().__init__()
         self.min_date = min_date
         self.max_date = max_date
-        self.msg = 'The date must be between %s and %s' % (min_date.strftime('%Y-%m-%d'),
-                                                           max_date.strftime('%Y-%m-%d'))
+        self.msg = "The date must be between %s and %s" % (
+            min_date.strftime("%Y-%m-%d"),
+            max_date.strftime("%Y-%m-%d"),
+        )
 
 
 class CompileError(RuntimeError):

@@ -1,3 +1,6 @@
+black:
+	pipenv run black kosmorrolib tests
+
 .PHONY: test
 tests: legacy-tests
 	python3 tests.py

@@ -39,9 +39,10 @@ def expect_assertions(assert_fun, num=1):
 
             count = assert_fun_mock.call_count
             if count != num:
-                raise AssertionError('Expected %d call(s) to function %s but called %d time(s).' % (num,
-                                                                                                    assert_fun.__name__,
-                                                                                                    count))
+                raise AssertionError(
+                    "Expected %d call(s) to function %s but called %d time(s)."
+                    % (num, assert_fun.__name__, count)
+                )
 
         return sniff_function
 

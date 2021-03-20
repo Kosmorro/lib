@@ -31,16 +31,22 @@ from .core import get_timescale, get_skf_objects, flatten_list
 
 
 def _search_conjunction(start_time: Time, end_time: Time, timezone: int) -> [Event]:
-    earth = get_skf_objects()['earth']
+    earth = get_skf_objects()["earth"]
     aster1 = None
     aster2 = None
 
     def is_in_conjunction(time: Time):
         earth_pos = earth.at(time)
-        _, aster1_lon, _ = earth_pos.observe(aster1.get_skyfield_object()).apparent().ecliptic_latlon()
-        _, aster2_lon, _ = earth_pos.observe(aster2.get_skyfield_object()).apparent().ecliptic_latlon()
+        _, aster1_lon, _ = (
+            earth_pos.observe(aster1.get_skyfield_object()).apparent().ecliptic_latlon()
+        )
+        _, aster2_lon, _ = (
+            earth_pos.observe(aster2.get_skyfield_object()).apparent().ecliptic_latlon()
+        )
 
-        return ((aster1_lon.radians - aster2_lon.radians) / pi % 2.0).astype('int8') == 0
+        return ((aster1_lon.radians - aster2_lon.radians) / pi % 2.0).astype(
+            "int8"
+        ) == 0
 
     is_in_conjunction.rough_period = 60.0
 
@@ -64,16 +70,30 @@ def _search_conjunction(start_time: Time, end_time: Time, timezone: int) -> [Eve
                     aster2_pos = (aster2.get_skyfield_object() - earth).at(time)
                     distance = aster1_pos.separation_from(aster2_pos).degrees
 
-                    if distance - aster2.get_apparent_radius(time, earth) < aster1.get_apparent_radius(time, earth):
-                        occulting_aster = [aster1,
-                                           aster2] if aster1_pos.distance().km < aster2_pos.distance().km else [aster2,
-                                                                                                                aster1]
+                    if distance - aster2.get_apparent_radius(
+                        time, earth
+                    ) < aster1.get_apparent_radius(time, earth):
+                        occulting_aster = (
+                            [aster1, aster2]
+                            if aster1_pos.distance().km < aster2_pos.distance().km
+                            else [aster2, aster1]
+                        )
 
-                        conjunctions.append(Event(EventType.OCCULTATION, occulting_aster,
-                                                  translate_to_timezone(time.utc_datetime(), timezone)))
+                        conjunctions.append(
+                            Event(
+                                EventType.OCCULTATION,
+                                occulting_aster,
+                                translate_to_timezone(time.utc_datetime(), timezone),
+                            )
+                        )
                     else:
-                        conjunctions.append(Event(EventType.CONJUNCTION, [aster1, aster2],
-                                                  translate_to_timezone(time.utc_datetime(), timezone)))
+                        conjunctions.append(
+                            Event(
+                                EventType.CONJUNCTION,
+                                [aster1, aster2],
+                                translate_to_timezone(time.utc_datetime(), timezone),
+                            )
+                        )
 
         computed.append(aster1)
 
@@ -81,13 +101,15 @@ def _search_conjunction(start_time: Time, end_time: Time, timezone: int) -> [Eve
 
 
 def _search_oppositions(start_time: Time, end_time: Time, timezone: int) -> [Event]:
-    earth = get_skf_objects()['earth']
-    sun = get_skf_objects()['sun']
+    earth = get_skf_objects()["earth"]
+    sun = get_skf_objects()["sun"]
     aster = None
 
     def is_oppositing(time: Time) -> [bool]:
         earth_pos = earth.at(time)
-        sun_pos = earth_pos.observe(sun).apparent()  # Never do this without eyes protection!
+        sun_pos = earth_pos.observe(
+            sun
+        ).apparent()  # Never do this without eyes protection!
         aster_pos = earth_pos.observe(get_skf_objects()[aster.skyfield_name]).apparent()
         _, lon1, _ = sun_pos.ecliptic_latlon()
         _, lon2, _ = aster_pos.ecliptic_latlon()
@@ -97,19 +119,27 @@ def _search_oppositions(start_time: Time, end_time: Time, timezone: int) -> [Eve
     events = []
 
     for aster in ASTERS:
-        if not isinstance(aster, Planet) or aster.skyfield_name in ['MERCURY', 'VENUS']:
+        if not isinstance(aster, Planet) or aster.skyfield_name in ["MERCURY", "VENUS"]:
             continue
 
         times, _ = find_discrete(start_time, end_time, is_oppositing)
         for time in times:
-            events.append(Event(EventType.OPPOSITION, [aster], translate_to_timezone(time.utc_datetime(), timezone)))
+            events.append(
+                Event(
+                    EventType.OPPOSITION,
+                    [aster],
+                    translate_to_timezone(time.utc_datetime(), timezone),
+                )
+            )
 
     return events
 
 
-def _search_maximal_elongations(start_time: Time, end_time: Time, timezone: int) -> [Event]:
-    earth = get_skf_objects()['earth']
-    sun = get_skf_objects()['sun']
+def _search_maximal_elongations(
+    start_time: Time, end_time: Time, timezone: int
+) -> [Event]:
+    earth = get_skf_objects()["earth"]
+    sun = get_skf_objects()["sun"]
     aster = None
 
     def get_elongation(time: Time):
@@ -123,24 +153,30 @@ def _search_maximal_elongations(start_time: Time, end_time: Time, timezone: int)
     events = []
 
     for aster in ASTERS:
-        if aster.skyfield_name not in ['MERCURY', 'VENUS']:
+        if aster.skyfield_name not in ["MERCURY", "VENUS"]:
             continue
 
-        times, elongations = find_maxima(start_time, end_time, f=get_elongation, epsilon=1./24/3600, num=12)
+        times, elongations = find_maxima(
+            start_time, end_time, f=get_elongation, epsilon=1.0 / 24 / 3600, num=12
+        )
 
         for i, time in enumerate(times):
             elongation = elongations[i]
-            events.append(Event(EventType.MAXIMAL_ELONGATION,
-                                [aster],
-                                translate_to_timezone(time.utc_datetime(), timezone),
-                                details='{:.3n}°'.format(elongation)))
+            events.append(
+                Event(
+                    EventType.MAXIMAL_ELONGATION,
+                    [aster],
+                    translate_to_timezone(time.utc_datetime(), timezone),
+                    details="{:.3n}°".format(elongation),
+                )
+            )
 
     return events
 
 
 def _get_moon_distance():
-    earth = get_skf_objects()['earth']
-    moon = get_skf_objects()['moon']
+    earth = get_skf_objects()["earth"]
+    moon = get_skf_objects()["moon"]
 
     def get_distance(time: Time):
         earth_pos = earth.at(time)
@@ -157,10 +193,18 @@ def _search_moon_apogee(start_time: Time, end_time: Time, timezone: int) -> [Eve
     moon = ASTERS[1]
     events = []
 
-    times, _ = find_maxima(start_time, end_time, f=_get_moon_distance(), epsilon=1./24/60)
+    times, _ = find_maxima(
+        start_time, end_time, f=_get_moon_distance(), epsilon=1.0 / 24 / 60
+    )
 
     for time in times:
-        events.append(Event(EventType.MOON_APOGEE, [moon], translate_to_timezone(time.utc_datetime(), timezone)))
+        events.append(
+            Event(
+                EventType.MOON_APOGEE,
+                [moon],
+                translate_to_timezone(time.utc_datetime(), timezone),
+            )
+        )
 
     return events
 
@@ -169,10 +213,18 @@ def _search_moon_perigee(start_time: Time, end_time: Time, timezone: int) -> [Ev
     moon = ASTERS[1]
     events = []
 
-    times, _ = find_minima(start_time, end_time, f=_get_moon_distance(), epsilon=1./24/60)
+    times, _ = find_minima(
+        start_time, end_time, f=_get_moon_distance(), epsilon=1.0 / 24 / 60
+    )
 
     for time in times:
-        events.append(Event(EventType.MOON_PERIGEE, [moon], translate_to_timezone(time.utc_datetime(), timezone)))
+        events.append(
+            Event(
+                EventType.MOON_PERIGEE,
+                [moon],
+                translate_to_timezone(time.utc_datetime(), timezone),
+            )
+        )
 
     return events
 
@@ -206,11 +258,13 @@ def get_events(date: date_type, timezone: int = 0) -> [Event]:
     try:
         found_events = []
 
-        for fun in [_search_oppositions,
-                    _search_conjunction,
-                    _search_maximal_elongations,
-                    _search_moon_apogee,
-                    _search_moon_perigee]:
+        for fun in [
+            _search_oppositions,
+            _search_conjunction,
+            _search_maximal_elongations,
+            _search_moon_apogee,
+            _search_moon_perigee,
+        ]:
             found_events.append(fun(start_time, end_time, timezone))
 
         return sorted(flatten_list(found_events), key=lambda event: event.start_time)

@@ -33,8 +33,12 @@ from .exceptions import OutOfRangeDateError
 RISEN_ANGLE = -0.8333
 
 
-def _get_skyfield_to_moon_phase(times: [Time], vals: [int], now: Time) -> Union[MoonPhase, None]:
-    tomorrow = get_timescale().utc(now.utc_datetime().year, now.utc_datetime().month, now.utc_datetime().day + 1)
+def _get_skyfield_to_moon_phase(
+    times: [Time], vals: [int], now: Time
+) -> Union[MoonPhase, None]:
+    tomorrow = get_timescale().utc(
+        now.utc_datetime().year, now.utc_datetime().month, now.utc_datetime().day + 1
+    )
 
     phases = list(MoonPhaseType)
     current_phase = None
@@ -65,28 +69,34 @@ def _get_skyfield_to_moon_phase(times: [Time], vals: [int], now: Time) -> Union[
             next_phase_time = times[j]
             break
 
-    return MoonPhase(current_phase,
-                     current_phase_time.utc_datetime() if current_phase_time is not None else None,
-                     next_phase_time.utc_datetime() if next_phase_time is not None else None)
+    return MoonPhase(
+        current_phase,
+        current_phase_time.utc_datetime() if current_phase_time is not None else None,
+        next_phase_time.utc_datetime() if next_phase_time is not None else None,
+    )
 
 
 def get_moon_phase(compute_date: datetime.date, timezone: int = 0) -> MoonPhase:
-    earth = get_skf_objects()['earth']
-    moon = get_skf_objects()['moon']
-    sun = get_skf_objects()['sun']
+    earth = get_skf_objects()["earth"]
+    moon = get_skf_objects()["moon"]
+    sun = get_skf_objects()["sun"]
 
     def moon_phase_at(time: Time):
         time._nutation_angles = get_iau2000b(time)
         current_earth = earth.at(time)
-        _, mlon, _ = current_earth.observe(moon).apparent().ecliptic_latlon('date')
-        _, slon, _ = current_earth.observe(sun).apparent().ecliptic_latlon('date')
+        _, mlon, _ = current_earth.observe(moon).apparent().ecliptic_latlon("date")
+        _, slon, _ = current_earth.observe(sun).apparent().ecliptic_latlon("date")
         return (((mlon.radians - slon.radians) // (tau / 8)) % 8).astype(int)
 
     moon_phase_at.rough_period = 7.0  # one lunar phase per week
 
     today = get_timescale().utc(compute_date.year, compute_date.month, compute_date.day)
-    time1 = get_timescale().utc(compute_date.year, compute_date.month, compute_date.day - 10)
-    time2 = get_timescale().utc(compute_date.year, compute_date.month, compute_date.day + 10)
+    time1 = get_timescale().utc(
+        compute_date.year, compute_date.month, compute_date.day - 10
+    )
+    time2 = get_timescale().utc(
+        compute_date.year, compute_date.month, compute_date.day + 10
+    )
 
     try:
         times, phase = find_discrete(time1, time2, moon_phase_at)
@@ -94,7 +104,9 @@ def get_moon_phase(compute_date: datetime.date, timezone: int = 0) -> MoonPhase:
         start = translate_to_timezone(error.start_time.utc_datetime(), timezone)
         end = translate_to_timezone(error.end_time.utc_datetime(), timezone)
 
-        start = datetime.date(start.year, start.month, start.day) + datetime.timedelta(days=12)
+        start = datetime.date(start.year, start.month, start.day) + datetime.timedelta(
+            days=12
+        )
         end = datetime.date(end.year, end.month, end.day) - datetime.timedelta(days=12)
 
         raise OutOfRangeDateError(start, end) from error
@@ -102,31 +114,51 @@ def get_moon_phase(compute_date: datetime.date, timezone: int = 0) -> MoonPhase:
     return _get_skyfield_to_moon_phase(times, phase, today)
 
 
-def get_ephemerides(date: datetime.date, position: Position, timezone: int = 0) -> [AsterEphemerides]:
+def get_ephemerides(
+    date: datetime.date, position: Position, timezone: int = 0
+) -> [AsterEphemerides]:
     ephemerides = []
 
     def get_angle(for_aster: Object):
         def fun(time: Time) -> float:
-            return position.get_planet_topos().at(time).observe(for_aster.get_skyfield_object()).apparent().altaz()[0]\
-                   .degrees
+            return (
+                position.get_planet_topos()
+                .at(time)
+                .observe(for_aster.get_skyfield_object())
+                .apparent()
+                .altaz()[0]
+                .degrees
+            )
+
         fun.rough_period = 1.0
         return fun
 
     def is_risen(for_aster: Object):
         def fun(time: Time) -> bool:
             return get_angle(for_aster)(time) > RISEN_ANGLE
+
         fun.rough_period = 0.5
         return fun
 
     start_time = get_timescale().utc(date.year, date.month, date.day, -timezone)
-    end_time = get_timescale().utc(date.year, date.month, date.day, 23 - timezone, 59, 59)
+    end_time = get_timescale().utc(
+        date.year, date.month, date.day, 23 - timezone, 59, 59
+    )
 
     try:
         for aster in ASTERS:
             rise_times, arr = find_discrete(start_time, end_time, is_risen(aster))
             try:
-                culmination_time, _ = find_maxima(start_time, end_time, f=get_angle(aster), epsilon=1./3600/24, num=12)
-                culmination_time = culmination_time[0] if len(culmination_time) > 0 else None
+                culmination_time, _ = find_maxima(
+                    start_time,
+                    end_time,
+                    f=get_angle(aster),
+                    epsilon=1.0 / 3600 / 24,
+                    num=12,
+                )
+                culmination_time = (
+                    culmination_time[0] if len(culmination_time) > 0 else None
+                )
             except ValueError:
                 culmination_time = None
 
@@ -139,18 +171,24 @@ def get_ephemerides(date: datetime.date, position: Position, timezone: int = 0) 
 
             # Convert the Time instances to Python datetime objects
             if rise_time is not None:
-                rise_time = translate_to_timezone(rise_time.utc_datetime().replace(microsecond=0),
-                                                  to_tz=timezone)
+                rise_time = translate_to_timezone(
+                    rise_time.utc_datetime().replace(microsecond=0), to_tz=timezone
+                )
 
             if culmination_time is not None:
-                culmination_time = translate_to_timezone(culmination_time.utc_datetime().replace(microsecond=0),
-                                                         to_tz=timezone)
+                culmination_time = translate_to_timezone(
+                    culmination_time.utc_datetime().replace(microsecond=0),
+                    to_tz=timezone,
+                )
 
             if set_time is not None:
-                set_time = translate_to_timezone(set_time.utc_datetime().replace(microsecond=0),
-                                                 to_tz=timezone)
+                set_time = translate_to_timezone(
+                    set_time.utc_datetime().replace(microsecond=0), to_tz=timezone
+                )
 
-            ephemerides.append(AsterEphemerides(rise_time, culmination_time, set_time, aster=aster))
+            ephemerides.append(
+                AsterEphemerides(rise_time, culmination_time, set_time, aster=aster)
+            )
     except EphemerisRangeError as error:
         start = translate_to_timezone(error.start_time.utc_datetime(), timezone)
         end = translate_to_timezone(error.end_time.utc_datetime(), timezone)

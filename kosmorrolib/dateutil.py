@@ -25,4 +25,6 @@ def translate_to_timezone(date: datetime, to_tz: int, from_tz: int = None):
     else:
         source_tz = timezone.utc
 
-    return date.replace(tzinfo=source_tz).astimezone(tz=timezone(timedelta(hours=to_tz)))
+    return date.replace(tzinfo=source_tz).astimezone(
+        tz=timezone(timedelta(hours=to_tz))
+    )

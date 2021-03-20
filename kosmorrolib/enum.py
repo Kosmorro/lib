@@ -21,6 +21,7 @@ from enum import Enum, auto
 
 class MoonPhaseType(Enum):
     """An enumeration of moon phases."""
+
     NEW_MOON = 1
     WAXING_CRESCENT = 2
     FIRST_QUARTER = 3
@@ -33,6 +34,7 @@ class MoonPhaseType(Enum):
 
 class EventType(Enum):
     """An enumeration for the supported event types."""
+
     OPPOSITION = 1
     CONJUNCTION = 2
     OCCULTATION = 3
