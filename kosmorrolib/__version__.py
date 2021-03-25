@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 __title__ = "kosmorrolib"
 __description__ = "A library that computes your ephemerides"
 __url__ = "http://kosmorro.space"

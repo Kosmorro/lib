@@ -84,7 +84,7 @@ def get_date(date_arg: str) -> date:
             return date.fromisoformat(date_arg)
         except ValueError as error:
             raise ValueError(
-                _("The date {date} is not valid: {error}").format(
+                "The date {date} is not valid: {error}".format(
                     date=date_arg, error=error.args[0]
                 )
             ) from error
