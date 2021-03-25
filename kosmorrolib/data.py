@@ -220,7 +220,7 @@ ASTERS = [
 
 
 class Position:
-    def __init__(self, latitude: float, longitude: float, aster: Object):
+    def __init__(self, latitude: float, longitude: float, aster: Object = EARTH):
         self.latitude = latitude
         self.longitude = longitude
         self.aster = aster

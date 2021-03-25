@@ -213,7 +213,7 @@ def _search_moon_perigee(start_time: Time, end_time: Time, timezone: int) -> [Ev
     return events
 
 
-def get_events(date: date_type, timezone: int = 0) -> [Event]:
+def get_events(date: date_type = date_type.today(), timezone: int = 0) -> [Event]:
     """Calculate and return a list of events for the given date, adjusted to the given timezone if any.
 
     Find events that happen on April 4th, 2020 (show hours in UTC):

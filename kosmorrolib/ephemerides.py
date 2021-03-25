@@ -60,7 +60,7 @@ def _get_skyfield_to_moon_phase(
     )
 
 
-def get_moon_phase(compute_date: datetime.date, timezone: int = 0) -> MoonPhase:
+def get_moon_phase(compute_date: datetime.date = datetime.date.today(), timezone: int = 0) -> MoonPhase:
     earth = get_skf_objects()["earth"]
     moon = get_skf_objects()["moon"]
     sun = get_skf_objects()["sun"]
@@ -99,7 +99,7 @@ def get_moon_phase(compute_date: datetime.date, timezone: int = 0) -> MoonPhase:
 
 
 def get_ephemerides(
-    date: datetime.date, position: Position, timezone: int = 0
+    position: Position, date: datetime.date = datetime.date.today(), timezone: int = 0
 ) -> [AsterEphemerides]:
     ephemerides = []
 
