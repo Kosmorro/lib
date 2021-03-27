@@ -4,14 +4,14 @@ from kosmorrolib.enum import MoonPhaseType
 
 from .testutils import expect_assertions
 from kosmorrolib import ephemerides
-from kosmorrolib.data import EARTH, Position, MoonPhase
+from kosmorrolib.data import Position, MoonPhase
 from datetime import date
 from kosmorrolib.exceptions import OutOfRangeDateError
 
 
 class EphemeridesTestCase(unittest.TestCase):
     def test_get_ephemerides_for_aster_returns_correct_hours(self):
-        position = Position(0, 0, EARTH)
+        position = Position(0, 0)
         eph = ephemerides.get_ephemerides(date=date(2019, 11, 18), position=position)
 
         @expect_assertions(self.assertRegex, num=3)
@@ -114,7 +114,7 @@ class EphemeridesTestCase(unittest.TestCase):
 
     def test_get_ephemerides_raises_exception_on_out_of_date_range(self):
         with self.assertRaises(OutOfRangeDateError):
-            ephemerides.get_ephemerides(Position(0, 0, EARTH), date(1789, 5, 5))
+            ephemerides.get_ephemerides(Position(0, 0), date(1789, 5, 5))
 
     def test_get_moon_phase_raises_exception_on_out_of_date_range(self):
         with self.assertRaises(OutOfRangeDateError):

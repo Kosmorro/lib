@@ -227,18 +227,14 @@ ASTERS = [
 
 
 class Position:
-    def __init__(self, latitude: float, longitude: float, aster: Object = EARTH):
+    def __init__(self, latitude: float, longitude: float):
         self.latitude = latitude
         self.longitude = longitude
-        self.aster = aster
         self._topos = None
 
     def get_planet_topos(self) -> Topos:
-        if self.aster is None:
-            raise TypeError("Observation planet must be set.")
-
         if self._topos is None:
-            self._topos = self.aster.get_skyfield_object() + Topos(
+            self._topos = EARTH.get_skyfield_object() + Topos(
                 latitude_degrees=self.latitude, longitude_degrees=self.longitude
             )
 
