@@ -35,12 +35,8 @@ jobs:
         pipenv lock --pre
         pipenv sync --dev
     - name: Unit tests
-      env:
-        COVERALLS_PRO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        make test
-        pipenv run coveralls --service=github
+        make legacy-tests
 
   unit-tests:
     runs-on: ${{ matrix.os }}
@@ -74,5 +70,5 @@ jobs:
         COVERALLS_PRO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        make test
+        make doctests
         pipenv run coveralls --service=github

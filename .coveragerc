@@ -1,0 +1,6 @@
+[run]
+branch = true
+source =
+    kosmorrolib
+omit =
+    tests/*
