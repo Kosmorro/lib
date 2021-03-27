@@ -30,6 +30,9 @@ class MoonPhase(Serializable):
         self.time = time
         self.next_phase_date = next_phase_date
 
+    def __repr__(self):
+        return "<MoonPhase phase_type=%s time=%s next_phase_date=%s>" % (self.phase_type, self.time, self.next_phase_date)
+
     def get_next_phase(self):
         if self.phase_type in [MoonPhaseType.NEW_MOON, MoonPhaseType.WAXING_CRESCENT]:
             return MoonPhaseType.FIRST_QUARTER

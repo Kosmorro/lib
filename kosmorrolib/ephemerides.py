@@ -18,7 +18,7 @@ RISEN_ANGLE = -0.8333
 
 
 def _get_skyfield_to_moon_phase(
-    times: [Time], vals: [int], now: Time
+    times: [Time], vals: [int], now: Time, timezone: int
 ) -> Union[MoonPhase, None]:
     tomorrow = get_timescale().utc(
         now.utc_datetime().year, now.utc_datetime().month, now.utc_datetime().day + 1
@@ -55,14 +55,26 @@ def _get_skyfield_to_moon_phase(
 
     return MoonPhase(
         current_phase,
-        current_phase_time.utc_datetime() if current_phase_time is not None else None,
-        next_phase_time.utc_datetime() if next_phase_time is not None else None,
+        translate_to_timezone(current_phase_time.utc_datetime(), timezone) if current_phase_time is not None else None,
+        translate_to_timezone(next_phase_time.utc_datetime(), timezone) if next_phase_time is not None else None,
     )
 
 
 def get_moon_phase(
-    compute_date: datetime.date = datetime.date.today(), timezone: int = 0
+    for_date: datetime.date = datetime.date.today(), timezone: int = 0
 ) -> MoonPhase:
+    """Calculate and return the moon phase for the given date, adjusted to the given timezone if any.
+
+    Get the moon phase for the 27 March, 2021:
+
+    >>> get_moon_phase(datetime.date.fromisoformat("2021-03-27"))
+    <MoonPhase phase_type=MoonPhaseType.WAXING_GIBBOUS time=None next_phase_date=2021-03-28 18:48:10.902298+00:00>
+
+    Get the moon phase for the 27 March, 2021, in the UTC+2 timezone:
+
+    >>> get_moon_phase(datetime.date.fromisoformat("2021-03-27"), timezone=2)
+    <MoonPhase phase_type=MoonPhaseType.WAXING_GIBBOUS time=None next_phase_date=2021-03-28 20:48:10.902298+02:00>
+    """
     earth = get_skf_objects()["earth"]
     moon = get_skf_objects()["moon"]
     sun = get_skf_objects()["sun"]
@@ -76,12 +88,12 @@ def get_moon_phase(
 
     moon_phase_at.rough_period = 7.0  # one lunar phase per week
 
-    today = get_timescale().utc(compute_date.year, compute_date.month, compute_date.day)
+    today = get_timescale().utc(for_date.year, for_date.month, for_date.day)
     time1 = get_timescale().utc(
-        compute_date.year, compute_date.month, compute_date.day - 10
+        for_date.year, for_date.month, for_date.day - 10
     )
     time2 = get_timescale().utc(
-        compute_date.year, compute_date.month, compute_date.day + 10
+        for_date.year, for_date.month, for_date.day + 10
     )
 
     try:
@@ -97,7 +109,7 @@ def get_moon_phase(
 
         raise OutOfRangeDateError(start, end) from error
 
-    return _get_skyfield_to_moon_phase(times, phase, today)
+    return _get_skyfield_to_moon_phase(times, phase, today, timezone)
 
 
 def get_ephemerides(
