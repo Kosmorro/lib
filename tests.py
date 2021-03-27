@@ -5,7 +5,7 @@ import doctest
 from kosmorrolib import *
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     failures = 0
     tests = 0
 

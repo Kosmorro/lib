@@ -55,8 +55,12 @@ def _get_skyfield_to_moon_phase(
 
     return MoonPhase(
         current_phase,
-        translate_to_timezone(current_phase_time.utc_datetime(), timezone) if current_phase_time is not None else None,
-        translate_to_timezone(next_phase_time.utc_datetime(), timezone) if next_phase_time is not None else None,
+        translate_to_timezone(current_phase_time.utc_datetime(), timezone)
+        if current_phase_time is not None
+        else None,
+        translate_to_timezone(next_phase_time.utc_datetime(), timezone)
+        if next_phase_time is not None
+        else None,
     )
 
 
@@ -89,12 +93,8 @@ def get_moon_phase(
     moon_phase_at.rough_period = 7.0  # one lunar phase per week
 
     today = get_timescale().utc(for_date.year, for_date.month, for_date.day)
-    time1 = get_timescale().utc(
-        for_date.year, for_date.month, for_date.day - 10
-    )
-    time2 = get_timescale().utc(
-        for_date.year, for_date.month, for_date.day + 10
-    )
+    time1 = get_timescale().utc(for_date.year, for_date.month, for_date.day - 10)
+    time2 = get_timescale().utc(for_date.year, for_date.month, for_date.day + 10)
 
     try:
         times, phase = find_discrete(time1, time2, moon_phase_at)
