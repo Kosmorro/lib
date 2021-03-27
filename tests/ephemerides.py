@@ -114,7 +114,7 @@ class EphemeridesTestCase(unittest.TestCase):
 
     def test_get_ephemerides_raises_exception_on_out_of_date_range(self):
         with self.assertRaises(OutOfRangeDateError):
-            ephemerides.get_ephemerides(date(1789, 5, 5), Position(0, 0, EARTH))
+            ephemerides.get_ephemerides(Position(0, 0, EARTH), date(1789, 5, 5))
 
     def test_get_moon_phase_raises_exception_on_out_of_date_range(self):
         with self.assertRaises(OutOfRangeDateError):
