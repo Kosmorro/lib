@@ -1,5 +1,5 @@
 # Kosmorrolib - a library to compute your ephemerides!
-[![Coverage Status](https://coveralls.io/repos/github/kosmorro/lib/badge.svg)](https://coveralls.io/github/kosmorro/lib) [![Version on PyPI](https://img.shields.io/pypi/v/kosmorrolib)](https://pypi.org/project/kosmorrolib) [![Discord](https://img.shields.io/discord/650237632533757965?logo=discord&label=%23kosmorro)](https://discord.gg/nyemBqE)
+[![Coverage Status](https://coveralls.io/repos/github/Kosmorro/lib/badge.svg)](https://coveralls.io/github/Kosmorro/lib) [![Version on PyPI](https://img.shields.io/pypi/v/kosmorrolib)](https://pypi.org/project/kosmorrolib) [![Discord](https://img.shields.io/discord/650237632533757965?logo=discord&label=%23kosmorro)](https://discord.gg/nyemBqE)
 
 ## Installation
 
