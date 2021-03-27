@@ -195,6 +195,12 @@ class AsterEphemerides(Serializable):
         self.set_time = set_time
         self.object = aster
 
+    def __repr__(self):
+        return (
+            "<AsterEphemerides rise_time=%s culmination_time=%s set_time=%s aster=%s>"
+            % (self.rise_time, self.culmination_time, self.set_time, self.object)
+        )
+
     def serialize(self) -> dict:
         return {
             "object": self.object.serialize(),
