@@ -9,6 +9,7 @@ babel = "*"
 coveralls = "*"
 parameterized = "*"
 black = "*"
+coverage = "*"
 
 [packages]
 skyfield = ">=1.32.0,<2.0.0"
