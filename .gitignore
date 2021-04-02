@@ -1,3 +1,6 @@
 __pycache__
 .coverage
 Pipfile.lock
+/build
+/dist
+/kosmorrolib.egg-info
