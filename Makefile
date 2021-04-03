@@ -30,7 +30,7 @@ changelog:
 	@echo -e "  When everything is good, finish the release with 'make tag'."
 
 tag: env
-	git add CHANGELOG.md kosmorrolib/version.py kosmorrolib/locales/messages.pot
+	git add CHANGELOG.md
 	git commit -m "build: bump version $$RELEASE_NUMBER"
 	git tag "v$$RELEASE_NUMBER"
 	git checkout features
