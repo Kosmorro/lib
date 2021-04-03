@@ -34,8 +34,8 @@ tag: env
 	git commit -m "build: bump version $$RELEASE_NUMBER"
 	git tag "v$$RELEASE_NUMBER"
 	git checkout features
-	git merge master
-	git checkout master
+	git merge main
+	git checkout main
 
 	@echo
 	@echo -e "\e[1mVersion \e[36m$$RELEASE_NUMBER\e[39m successfully tagged!"
