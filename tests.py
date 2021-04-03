@@ -16,3 +16,5 @@ if __name__ == "__main__":
 
     if failures == 0:
         print("✔ All %d tests successfully passed." % tests)
+    else:
+        exit(1)

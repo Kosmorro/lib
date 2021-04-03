@@ -1,7 +1,7 @@
 black:
-	pipenv run black kosmorrolib tests
+	pipenv run black kosmorrolib tests setup.py
 
-.PHONY: test
+.PHONY: tests
 tests: legacy-tests doctests
 
 doctests:
@@ -24,25 +24,12 @@ env:
 		exit 1; \
 	fi
 
-release: env
-	@echo -e "\e[1mCreating release with version number \e[36m$$RELEASE_NUMBER\e[0m"
-	@echo
-
-	sed "s/^VERSION =.*/VERSION = '$$RELEASE_NUMBER'/g" kosmorrolib/version.py > version.py
-	mv version.py kosmorrolib/version.py
-
-	pipenv run python setup.py extract_messages --output-file=kosmorrolib/locales/messages.pot > /dev/null
-
+changelog:
 	conventional-changelog -p angular -i CHANGELOG.md -s
-	sed "0,/\\[\\]/s/\\[\\]/[v$$RELEASE_NUMBER]/g" CHANGELOG.md > /tmp/CHANGELOG.md
-	sed -e "s/...v)/...v$$RELEASE_NUMBER)/" /tmp/CHANGELOG.md > CHANGELOG.md
-	rm /tmp/CHANGELOG.md
+	@echo -e "\e[32m✔\e[33m Changelog generated. Don't forget to update the version number before committing.\e[0m"
+	@echo -e "  When everything is good, finish the release with 'make tag'."
 
-	@echo
-	@echo -e "\e[1mRelease \e[36m$$RELEASE_NUMBER\e[39m is ready to commit."
-	@echo -e "Please review the changes, then invoke \e[33mmake finish-release\e[39m."
-
-finish-release: env
+tag: env
 	git add CHANGELOG.md kosmorrolib/version.py kosmorrolib/locales/messages.pot
 	git commit -m "build: bump version $$RELEASE_NUMBER"
 	git tag "v$$RELEASE_NUMBER"
