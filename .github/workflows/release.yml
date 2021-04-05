@@ -19,17 +19,8 @@ jobs:
             - name: Prepare release
               id: prepare_release
               run: |
-                  changelog="$(git diff HEAD^ HEAD -- CHANGELOG.md | grep -E '\+[#*]' | sed 's/^+//')"
-                  changelog="${changelog//$'%'/'%25'}"
-                  changelog="${changelog//$'\n'/'%0A'}"
-                  changelog="${changelog//$'\r'/'%0D'}"
+                  changelog="$(git diff $(git describe --abbrev=0 --tags $(git describe --abbrev=0 --tags)^) -- CHANGELOG.md | grep -E '\+[#*]' | sed 's/^+/\n/')"
                   echo "::set-output name=changelog::$changelog"
-            - name: Build locales
-              env:
-                  POEDITOR_API_ACCESS: ${{ secrets.POEDITOR_API_ACCESS }}
-              run: |
-                  make POEDITOR_API_ACCESS="${POEDITOR_API_ACCESS}" i18n
-                  tar cf locales.tar.gz kosmorrolib/locales
             - name: Create release
               id: create_release
               uses: actions/create-release@v1
@@ -42,16 +33,6 @@ jobs:
                   prerelease: false
                   body: |
                     ${{ steps.prepare_release.outputs.changelog }}
-            - name: Upload locales
-              id: upload-locales
-              uses: actions/upload-release-asset@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: ./locales.tar.gz
-                  asset_name: locales.tar.gz
-                  asset_content_type: application/x-tar
 
 
     pip:
@@ -70,15 +51,16 @@ jobs:
                 sudo gem install ronn
             - name: Install dependencies
               run: |
-                python -m pip install --upgrade pip
-                pip install setuptools wheel twine skyfield numpy tabulate Babel requests
+                python -m pip install --upgrade pip pipenv twine
+                pipenv lock --pre
+                pipenv sync
+                pipenv run pip freeze > requirements.txt
+                pip install -r requirements.txt
             - name: Build and publish
               env:
                 TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
                 TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-                POEDITOR_API_ACCESS: ${{ secrets.POEDITOR_API_ACCESS }}
-                POEDITOR_PROJECT_ID: 306433
               run: |
-                make POEDITOR_API_ACCESS="${POEDITOR_API_ACCESS}" POEDITOR_PROJECT_ID="306433" build
+                make build
                 twine upload dist/*
 
