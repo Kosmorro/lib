@@ -1,6 +1,5 @@
-# Version 0.10.0 (2021-04-03)
+# Version 0.10.0 (2021-04-05)
 
-This is the first version of the Kosmorrolib.  It is numbered "0.10.0" because directly follows the version 0.9.0 of the Kosmorro project.
 
 ### Bug Fixes
 
@@ -10,3 +9,6 @@ This is the first version of the Kosmorrolib.  It is numbered "0.10.0" because d
 ### Features
 
 * make the date parameter optional (default value: today) ([c59b553](https://github.com/Kosmorro/lib/commit/c59b553c86999958027a7649c52811b2bc5162fd))
+
+
+
