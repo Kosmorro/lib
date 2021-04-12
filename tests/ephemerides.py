@@ -4,7 +4,7 @@ from kosmorrolib.enum import MoonPhaseType
 
 from .testutils import expect_assertions
 from kosmorrolib import ephemerides
-from kosmorrolib.data import Position, MoonPhase
+from kosmorrolib.model import Position, MoonPhase
 from datetime import date
 from kosmorrolib.exceptions import OutOfRangeDateError
 

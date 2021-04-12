@@ -8,7 +8,7 @@ from skyfield.timelib import Time
 from skyfield.constants import tau
 from skyfield.errors import EphemerisRangeError
 
-from .data import Position, AsterEphemerides, MoonPhase, Object, ASTERS
+from .model import Position, AsterEphemerides, MoonPhase, Object, ASTERS
 from .dateutil import translate_to_timezone, normalize_datetime
 from .core import get_skf_objects, get_timescale, get_iau2000b
 from .enum import MoonPhaseType
