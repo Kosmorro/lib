@@ -4,13 +4,7 @@
 | New feature?   | yes/no
 | Related issues | Fix #... <!-- prefix each issue number with "Fix #", if any -->
 | Has BC-break   | yes/no
-| License        | GNU AGPL-v3
-
-**Checklist:**
-<!--
-    Leave the checklist as it when editing, and check the boxes once the PR created.
--->
-- [ ] I have updated the manpages
+| License        | CeCILL-C
 
 <!--
     Replace this notice with a short README for your feature/bugfix.
