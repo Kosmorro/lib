@@ -4,7 +4,7 @@ from datetime import date, datetime
 from parameterized import parameterized
 
 from kosmorrolib import events
-from kosmorrolib.data import Event, ASTERS
+from kosmorrolib.model import Event, ASTERS
 from kosmorrolib.enum import EventType
 from kosmorrolib.exceptions import OutOfRangeDateError
 

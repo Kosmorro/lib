@@ -1,11 +1,11 @@
 import unittest
 
-from kosmorrolib import data, core
+from kosmorrolib import model, core
 
 
 class DataTestCase(unittest.TestCase):
     def test_object_radius_must_be_set_to_get_apparent_radius(self):
-        o = data.Planet("Saturn", "SATURN")
+        o = model.Planet("Saturn", "SATURN")
 
         with self.assertRaises(ValueError) as context:
             o.get_apparent_radius(
