@@ -7,7 +7,7 @@ from skyfield.timelib import Time
 from skyfield.searchlib import find_discrete, find_maxima, find_minima
 from numpy import pi
 
-from .data import Event, Star, Planet, ASTERS
+from .model import Event, Star, Planet, ASTERS
 from .dateutil import translate_to_timezone
 from .enum import EventType
 from .exceptions import OutOfRangeDateError
