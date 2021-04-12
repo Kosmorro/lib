@@ -1,0 +1,110 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, features]
+  pull_request:
+    branches: [main, features]
+
+jobs:
+  legacy-tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-18.04
+          - ubuntu-20.04
+          - macos-10.15
+          - macos-11.0
+          - windows-2019
+        python_version:
+          - '3.7'
+          - '3.8'
+          - '3.9'
+
+    name: Legacy tests (Python ${{ matrix.python_version }} on ${{ matrix.os }})
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python_version }}
+
+    - name: Prepare environment
+      run: |
+        pip install --upgrade pip pipenv
+
+    - name: Install dependencies (all systems)
+      run: |
+        pipenv lock --pre
+        pipenv sync --dev
+        pipenv install --dev
+
+    - name: Install dependencies (Windows-specific)
+      if: ${{ matrix.os == 'windows-2019' }}
+      run: |
+        pipenv lock --dev -r > requirements.txt
+        pip install -r requirements.txt
+
+    - name: Run legacy tests
+      run: |
+        make legacy-tests
+
+  doc-tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-18.04
+          - ubuntu-20.04
+          - macos-10.15
+          - macos-11.0
+          - windows-2019
+        python_version:
+          - '3.7'
+          - '3.8'
+          - '3.9'
+
+    name: Doc tests (Python ${{ matrix.python_version }} on ${{ matrix.os }})
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python_version }}
+
+    - name: Prepare environment
+      run: |
+        pip install --upgrade pip pipenv
+
+    - name: Install dependencies (all systems)
+      run: |
+        pipenv lock --pre
+        pipenv sync --dev
+        pipenv install --dev
+
+    - name: Install dependencies (Windows-specific)
+      if: ${{ matrix.os == 'windows-2019' }}
+      run: |
+        pipenv lock -r > requirements.txt
+        pip install -r requirements.txt
+
+    - name: Run doc tests (with coverage)
+      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.python_version == '3.9' }}
+      run: |
+        make coverage-doctests
+
+    - name: Run doc tests
+      if: ${{ matrix.os != 'ubuntu-20.04' && matrix.python_version != '3.9' }}
+      run: |
+        make doctests
+
+    - name: Push code coverage
+      env:
+        COVERALLS_PRO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.python_version == '3.9' }}
+      run: |
+        pipenv run coveralls --service=github

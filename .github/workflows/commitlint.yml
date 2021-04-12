@@ -1,4 +1,4 @@
-name: Commit lint
+name: Commit
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 
 jobs:
   commitlint:
+    name: Message validation
     runs-on: ubuntu-latest
 
     steps:

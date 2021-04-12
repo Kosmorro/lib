@@ -4,14 +4,17 @@ black:
 .PHONY: tests
 tests: legacy-tests doctests
 
-doctests:
+coverage-doctests:
 	pipenv run python3 -m coverage run tests.py
+
+doctests:
+	pipenv run python3 tests.py
 
 legacy-tests:
 	unset KOSMORRO_LATITUDE; \
 	unset KOSMORRO_LONGITUDE; \
 	unset KOSMORRO_TIMEZONE; \
-	pipenv run python3 -m coverage run -m unittest tests
+	pipenv run python3 -m unittest tests
 
 .PHONY: build
 build:
