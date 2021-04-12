@@ -1,6 +1,7 @@
 [run]
 branch = true
 source =
-    kosmorrolib
+    kosmorrolib/*
 omit =
+    kosmorrolib/__version__.py
     tests/*
