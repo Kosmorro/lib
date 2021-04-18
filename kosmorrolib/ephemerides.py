@@ -9,7 +9,7 @@ from skyfield.constants import tau
 from skyfield.errors import EphemerisRangeError
 
 from .model import Position, AsterEphemerides, MoonPhase, Object, ASTERS
-from .dateutil import translate_to_timezone
+from .dateutil import translate_to_timezone, normalize_datetime
 from .core import get_skf_objects, get_timescale, get_iau2000b
 from .enum import MoonPhaseType
 from .exceptions import OutOfRangeDateError
@@ -121,12 +121,12 @@ def get_ephemerides(
 
     >>> pos = Position(50.5824, 3.0624)
     >>> get_ephemerides(pos, datetime.date(2021, 6, 9))
-    [<AsterEphemerides rise_time=2021-06-09 03:36:18+00:00 culmination_time=2021-06-09 11:47:05+00:00 set_time=2021-06-09 19:58:10+00:00 aster=<Object type=star name=Sun />>, <AsterEphemerides rise_time=2021-06-09 02:58:49+00:00 culmination_time=2021-06-09 11:02:18+00:00 set_time=2021-06-09 19:15:58+00:00 aster=<Object type=satellite name=Moon />>, <AsterEphemerides rise_time=2021-06-09 04:05:32+00:00 culmination_time=2021-06-09 11:57:51+00:00 set_time=2021-06-09 19:49:16+00:00 aster=<Object type=planet name=Mercury />>, <AsterEphemerides rise_time=2021-06-09 04:51:39+00:00 culmination_time=2021-06-09 13:12:45+00:00 set_time=2021-06-09 21:33:38+00:00 aster=<Object type=planet name=Venus />>, <AsterEphemerides rise_time=2021-06-09 06:37:42+00:00 culmination_time=2021-06-09 14:39:49+00:00 set_time=2021-06-09 22:41:29+00:00 aster=<Object type=planet name=Mars />>, <AsterEphemerides rise_time=2021-06-09 23:43:15+00:00 culmination_time=2021-06-09 04:53:50+00:00 set_time=2021-06-09 10:00:35+00:00 aster=<Object type=planet name=Jupiter />>, <AsterEphemerides rise_time=2021-06-09 23:01:34+00:00 culmination_time=2021-06-09 03:40:38+00:00 set_time=2021-06-09 08:15:43+00:00 aster=<Object type=planet name=Saturn />>, <AsterEphemerides rise_time=2021-06-09 01:55:34+00:00 culmination_time=2021-06-09 09:18:00+00:00 set_time=2021-06-09 16:40:29+00:00 aster=<Object type=planet name=Uranus />>, <AsterEphemerides rise_time=2021-06-09 00:26:53+00:00 culmination_time=2021-06-09 06:12:55+00:00 set_time=2021-06-09 11:58:57+00:00 aster=<Object type=planet name=Neptune />>, <AsterEphemerides rise_time=2021-06-09 22:22:10+00:00 culmination_time=2021-06-09 02:31:56+00:00 set_time=2021-06-09 06:37:43+00:00 aster=<Object type=planet name=Pluto />>]
+    [<AsterEphemerides rise_time=2021-06-09 03:36:00 culmination_time=2021-06-09 11:47:00 set_time=2021-06-09 19:58:00 aster=<Object type=STAR name=SUN />>, <AsterEphemerides rise_time=2021-06-09 02:59:00 culmination_time=2021-06-09 11:02:00 set_time=2021-06-09 19:16:00 aster=<Object type=SATELLITE name=MOON />>, <AsterEphemerides rise_time=2021-06-09 04:06:00 culmination_time=2021-06-09 11:58:00 set_time=2021-06-09 19:49:00 aster=<Object type=PLANET name=MERCURY />>, <AsterEphemerides rise_time=2021-06-09 04:52:00 culmination_time=2021-06-09 13:13:00 set_time=2021-06-09 21:34:00 aster=<Object type=PLANET name=VENUS />>, <AsterEphemerides rise_time=2021-06-09 06:38:00 culmination_time=2021-06-09 14:40:00 set_time=2021-06-09 22:41:00 aster=<Object type=PLANET name=MARS />>, <AsterEphemerides rise_time=2021-06-09 23:43:00 culmination_time=2021-06-09 04:54:00 set_time=2021-06-09 10:01:00 aster=<Object type=PLANET name=JUPITER />>, <AsterEphemerides rise_time=2021-06-09 23:02:00 culmination_time=2021-06-09 03:41:00 set_time=2021-06-09 08:16:00 aster=<Object type=PLANET name=SATURN />>, <AsterEphemerides rise_time=2021-06-09 01:56:00 culmination_time=2021-06-09 09:18:00 set_time=2021-06-09 16:40:00 aster=<Object type=PLANET name=URANUS />>, <AsterEphemerides rise_time=2021-06-09 00:27:00 culmination_time=2021-06-09 06:13:00 set_time=2021-06-09 11:59:00 aster=<Object type=PLANET name=NEPTUNE />>, <AsterEphemerides rise_time=2021-06-09 22:22:00 culmination_time=2021-06-09 02:32:00 set_time=2021-06-09 06:38:00 aster=<Object type=PLANET name=PLUTO />>]
 
     Compute the ephemerides for June 9th, 2021:
 
     >>> get_ephemerides(pos, datetime.date(2021, 6, 9), timezone=2)
-    [<AsterEphemerides rise_time=2021-06-09 05:36:18+02:00 culmination_time=2021-06-09 13:47:05+02:00 set_time=2021-06-09 21:58:10+02:00 aster=<Object type=star name=Sun />>, <AsterEphemerides rise_time=2021-06-09 04:58:49+02:00 culmination_time=2021-06-09 13:02:19+02:00 set_time=2021-06-09 21:15:58+02:00 aster=<Object type=satellite name=Moon />>, <AsterEphemerides rise_time=2021-06-09 06:05:32+02:00 culmination_time=2021-06-09 13:57:51+02:00 set_time=2021-06-09 21:49:16+02:00 aster=<Object type=planet name=Mercury />>, <AsterEphemerides rise_time=2021-06-09 06:51:39+02:00 culmination_time=2021-06-09 15:12:45+02:00 set_time=2021-06-09 23:33:38+02:00 aster=<Object type=planet name=Venus />>, <AsterEphemerides rise_time=2021-06-09 08:37:42+02:00 culmination_time=2021-06-09 16:39:49+02:00 set_time=2021-06-09 00:43:41+02:00 aster=<Object type=planet name=Mars />>, <AsterEphemerides rise_time=2021-06-09 01:47:05+02:00 culmination_time=2021-06-09 06:53:50+02:00 set_time=2021-06-09 12:00:35+02:00 aster=<Object type=planet name=Jupiter />>, <AsterEphemerides rise_time=2021-06-09 01:05:33+02:00 culmination_time=2021-06-09 05:40:38+02:00 set_time=2021-06-09 10:15:43+02:00 aster=<Object type=planet name=Saturn />>, <AsterEphemerides rise_time=2021-06-09 03:55:34+02:00 culmination_time=2021-06-09 11:18:01+02:00 set_time=2021-06-09 18:40:29+02:00 aster=<Object type=planet name=Uranus />>, <AsterEphemerides rise_time=2021-06-09 02:26:53+02:00 culmination_time=2021-06-09 08:12:55+02:00 set_time=2021-06-09 13:58:57+02:00 aster=<Object type=planet name=Neptune />>, <AsterEphemerides rise_time=2021-06-09 00:26:08+02:00 culmination_time=2021-06-09 04:31:56+02:00 set_time=2021-06-09 08:37:43+02:00 aster=<Object type=planet name=Pluto />>]
+    [<AsterEphemerides rise_time=2021-06-09 05:36:00 culmination_time=2021-06-09 13:47:00 set_time=2021-06-09 21:58:00 aster=<Object type=STAR name=SUN />>, <AsterEphemerides rise_time=2021-06-09 04:59:00 culmination_time=2021-06-09 13:02:00 set_time=2021-06-09 21:16:00 aster=<Object type=SATELLITE name=MOON />>, <AsterEphemerides rise_time=2021-06-09 06:06:00 culmination_time=2021-06-09 13:58:00 set_time=2021-06-09 21:49:00 aster=<Object type=PLANET name=MERCURY />>, <AsterEphemerides rise_time=2021-06-09 06:52:00 culmination_time=2021-06-09 15:13:00 set_time=2021-06-09 23:34:00 aster=<Object type=PLANET name=VENUS />>, <AsterEphemerides rise_time=2021-06-09 08:38:00 culmination_time=2021-06-09 16:40:00 set_time=2021-06-09 00:44:00 aster=<Object type=PLANET name=MARS />>, <AsterEphemerides rise_time=2021-06-09 01:47:00 culmination_time=2021-06-09 06:54:00 set_time=2021-06-09 12:01:00 aster=<Object type=PLANET name=JUPITER />>, <AsterEphemerides rise_time=2021-06-09 01:06:00 culmination_time=2021-06-09 05:41:00 set_time=2021-06-09 10:16:00 aster=<Object type=PLANET name=SATURN />>, <AsterEphemerides rise_time=2021-06-09 03:56:00 culmination_time=2021-06-09 11:18:00 set_time=2021-06-09 18:40:00 aster=<Object type=PLANET name=URANUS />>, <AsterEphemerides rise_time=2021-06-09 02:27:00 culmination_time=2021-06-09 08:13:00 set_time=2021-06-09 13:59:00 aster=<Object type=PLANET name=NEPTUNE />>, <AsterEphemerides rise_time=2021-06-09 00:26:00 culmination_time=2021-06-09 04:32:00 set_time=2021-06-09 08:38:00 aster=<Object type=PLANET name=PLUTO />>]
     """
     ephemerides = []
 
@@ -182,19 +182,25 @@ def get_ephemerides(
 
             # Convert the Time instances to Python datetime objects
             if rise_time is not None:
-                rise_time = translate_to_timezone(
-                    rise_time.utc_datetime().replace(microsecond=0), to_tz=timezone
+                rise_time = normalize_datetime(
+                    translate_to_timezone(
+                        rise_time.utc_datetime().replace(microsecond=0), to_tz=timezone
+                    )
                 )
 
             if culmination_time is not None:
-                culmination_time = translate_to_timezone(
-                    culmination_time.utc_datetime().replace(microsecond=0),
-                    to_tz=timezone,
+                culmination_time = normalize_datetime(
+                    translate_to_timezone(
+                        culmination_time.utc_datetime().replace(microsecond=0),
+                        to_tz=timezone,
+                    )
                 )
 
             if set_time is not None:
-                set_time = translate_to_timezone(
-                    set_time.utc_datetime().replace(microsecond=0), to_tz=timezone
+                set_time = normalize_datetime(
+                    translate_to_timezone(
+                        set_time.utc_datetime().replace(microsecond=0), to_tz=timezone
+                    )
                 )
 
             ephemerides.append(

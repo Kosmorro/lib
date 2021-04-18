@@ -219,17 +219,17 @@ def get_events(date: date_type = date_type.today(), timezone: int = 0) -> [Event
     Find events that happen on April 4th, 2020 (show hours in UTC):
 
     >>> get_events(date_type(2020, 4, 4))
-    [<Event type=CONJUNCTION objects=[<Object type=planet name=Mercury />, <Object type=planet name=Neptune />] start=2020-04-04 01:14:39.063308+00:00 end=None details=None />]
+    [<Event type=CONJUNCTION objects=[<Object type=PLANET name=MERCURY />, <Object type=PLANET name=NEPTUNE />] start=2020-04-04 01:14:39.063308+00:00 end=None details=None />]
 
     Find events that happen on April 4th, 2020 (show timezones in UTC+2):
 
     >>> get_events(date_type(2020, 4, 4), 2)
-    [<Event type=CONJUNCTION objects=[<Object type=planet name=Mercury />, <Object type=planet name=Neptune />] start=2020-04-04 03:14:39.063267+02:00 end=None details=None />]
+    [<Event type=CONJUNCTION objects=[<Object type=PLANET name=MERCURY />, <Object type=PLANET name=NEPTUNE />] start=2020-04-04 03:14:39.063267+02:00 end=None details=None />]
 
     Find events that happen on April 3rd, 2020 (show timezones in UTC-2):
 
     >>> get_events(date_type(2020, 4, 3), -2)
-    [<Event type=CONJUNCTION objects=[<Object type=planet name=Mercury />, <Object type=planet name=Neptune />] start=2020-04-03 23:14:39.063388-02:00 end=None details=None />]
+    [<Event type=CONJUNCTION objects=[<Object type=PLANET name=MERCURY />, <Object type=PLANET name=NEPTUNE />] start=2020-04-03 23:14:39.063388-02:00 end=None details=None />]
 
     :param date: the date for which the events must be calculated
     :param timezone: the timezone to adapt the results to. If not given, defaults to 0.
