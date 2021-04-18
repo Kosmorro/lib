@@ -10,7 +10,7 @@ from skyfield.api import Topos, Time
 from skyfield.vectorlib import VectorSum as SkfPlanet
 
 from .core import get_skf_objects
-from .enum import MoonPhaseType, EventType
+from .enum import MoonPhaseType, EventType, ObjectIdentifier, ObjectType
 
 
 class Serializable(ABC):
@@ -66,27 +66,32 @@ class Object(Serializable):
     An astronomical object.
     """
 
-    def __init__(self, name: str, skyfield_name: str, radius: float = None):
+    def __init__(
+        self, identifier: ObjectIdentifier, skyfield_name: str, radius: float = None
+    ):
         """
         Initialize an astronomical object
 
-        :param str name: the official name of the object (may be internationalized)
+        :param ObjectIdentifier identifier: the official name of the object (may be internationalized)
         :param str skyfield_name: the internal name of the object in Skyfield library
         :param float radius: the radius (in km) of the object
         :param AsterEphemerides ephemerides: the ephemerides associated to the object
         """
-        self.name = name
+        self.identifier = identifier
         self.skyfield_name = skyfield_name
         self.radius = radius
 
     def __repr__(self):
-        return "<Object type=%s name=%s />" % (self.get_type(), self.name)
+        return "<Object type=%s name=%s />" % (
+            self.get_type().name,
+            self.identifier.name,
+        )
 
     def get_skyfield_object(self) -> SkfPlanet:
         return get_skf_objects()[self.skyfield_name]
 
     @abstractmethod
-    def get_type(self) -> str:
+    def get_type(self) -> ObjectType:
         pass
 
     def get_apparent_radius(self, time: Time, from_place) -> float:
@@ -97,7 +102,7 @@ class Object(Serializable):
         :return:
         """
         if self.radius is None:
-            raise ValueError("Missing radius for %s object" % self.name)
+            raise ValueError("Missing radius for %s" % self.identifier.name)
 
         return (
             360
@@ -110,30 +115,30 @@ class Object(Serializable):
 
     def serialize(self) -> dict:
         return {
-            "name": self.name,
+            "identifier": self.identifier.name,
             "type": self.get_type(),
             "radius": self.radius,
         }
 
 
 class Star(Object):
-    def get_type(self) -> str:
-        return "star"
+    def get_type(self) -> ObjectType:
+        return ObjectType.STAR
 
 
 class Planet(Object):
-    def get_type(self) -> str:
-        return "planet"
+    def get_type(self) -> ObjectType:
+        return ObjectType.PLANET
 
 
 class DwarfPlanet(Planet):
-    def get_type(self) -> str:
-        return "dwarf_planet"
+    def get_type(self) -> ObjectType:
+        return ObjectType.DWARF_PLANET
 
 
 class Satellite(Object):
-    def get_type(self) -> str:
-        return "satellite"
+    def get_type(self) -> ObjectType:
+        return ObjectType.SATELLITE
 
 
 class Event(Serializable):
@@ -216,19 +221,19 @@ class AsterEphemerides(Serializable):
         }
 
 
-EARTH = Planet("Earth", "EARTH")
+EARTH = Planet(ObjectIdentifier.EARTH, "EARTH")
 
 ASTERS = [
-    Star("Sun", "SUN", radius=696342),
-    Satellite("Moon", "MOON", radius=1737.4),
-    Planet("Mercury", "MERCURY", radius=2439.7),
-    Planet("Venus", "VENUS", radius=6051.8),
-    Planet("Mars", "MARS", radius=3396.2),
-    Planet("Jupiter", "JUPITER BARYCENTER", radius=71492),
-    Planet("Saturn", "SATURN BARYCENTER", radius=60268),
-    Planet("Uranus", "URANUS BARYCENTER", radius=25559),
-    Planet("Neptune", "NEPTUNE BARYCENTER", radius=24764),
-    Planet("Pluto", "PLUTO BARYCENTER", radius=1185),
+    Star(ObjectIdentifier.SUN, "SUN", radius=696342),
+    Satellite(ObjectIdentifier.MOON, "MOON", radius=1737.4),
+    Planet(ObjectIdentifier.MERCURY, "MERCURY", radius=2439.7),
+    Planet(ObjectIdentifier.VENUS, "VENUS", radius=6051.8),
+    Planet(ObjectIdentifier.MARS, "MARS", radius=3396.2),
+    Planet(ObjectIdentifier.JUPITER, "JUPITER BARYCENTER", radius=71492),
+    Planet(ObjectIdentifier.SATURN, "SATURN BARYCENTER", radius=60268),
+    Planet(ObjectIdentifier.URANUS, "URANUS BARYCENTER", radius=25559),
+    Planet(ObjectIdentifier.NEPTUNE, "NEPTUNE BARYCENTER", radius=24764),
+    Planet(ObjectIdentifier.PLUTO, "PLUTO BARYCENTER", radius=1185),
 ]
 
 

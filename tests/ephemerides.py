@@ -18,11 +18,11 @@ class EphemeridesTestCase(unittest.TestCase):
         def do_assertions(assert_regex):
             for ephemeris in eph:
                 if ephemeris.object.skyfield_name == "SUN":
-                    assert_regex(ephemeris.rise_time.isoformat(), "^2019-11-18T05:41:")
+                    assert_regex(ephemeris.rise_time.isoformat(), "^2019-11-18T05:42:")
                     assert_regex(
                         ephemeris.culmination_time.isoformat(), "^2019-11-18T11:45:"
                     )
-                    assert_regex(ephemeris.set_time.isoformat(), "^2019-11-18T17:48:")
+                    assert_regex(ephemeris.set_time.isoformat(), "^2019-11-18T17:49:")
                     break
 
         do_assertions()

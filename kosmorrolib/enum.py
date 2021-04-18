@@ -25,3 +25,28 @@ class EventType(Enum):
     MAXIMAL_ELONGATION = 4
     MOON_PERIGEE = 5
     MOON_APOGEE = 6
+
+
+class ObjectType(Enum):
+    """An enumeration of object types"""
+
+    STAR = 0
+    PLANET = 1
+    DWARF_PLANET = 11
+    SATELLITE = 2
+
+
+class ObjectIdentifier(Enum):
+    """An enumeration of identifiers for objects"""
+
+    SUN = 0
+    EARTH = 1
+    MOON = 11
+    MERCURY = 2
+    VENUS = 3
+    MARS = 4
+    JUPITER = 5
+    SATURN = 6
+    URANUS = 7
+    NEPTUNE = 8
+    PLUTO = 9
