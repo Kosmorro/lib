@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from datetime import date as date_type
+from datetime import date
 
 from skyfield.errors import EphemerisRangeError
 from skyfield.timelib import Time
@@ -9,7 +9,7 @@ from numpy import pi
 
 from .model import Event, Star, Planet, ASTERS
 from .dateutil import translate_to_timezone
-from .enum import EventType
+from .enum import EventType, ObjectIdentifier
 from .exceptions import OutOfRangeDateError
 from .core import get_timescale, get_skf_objects, flatten_list
 
@@ -85,29 +85,61 @@ def _search_conjunction(start_time: Time, end_time: Time, timezone: int) -> [Eve
 
 
 def _search_oppositions(start_time: Time, end_time: Time, timezone: int) -> [Event]:
+    """Function to search oppositions.
+
+    **Warning:** this is an internal function, not intended for use by end-developers.
+
+    Will return Mars opposition on 2020-10-13:
+
+    >>> oppositions = _search_oppositions(get_timescale().utc(2020, 10, 13), get_timescale().utc(2020, 10, 14), 0)
+    >>> len(oppositions)
+    1
+    >>> oppositions[0].objects[0]
+    <Object type=PLANET name=MARS />
+
+    Will return nothing if no opposition happens:
+
+    >>> _search_oppositions(get_timescale().utc(2021, 3, 20), get_timescale().utc(2021, 3, 21), 0)
+    []
+    """
     earth = get_skf_objects()["earth"]
     sun = get_skf_objects()["sun"]
     aster = None
 
     def is_oppositing(time: Time) -> [bool]:
+        diff = get_angle(time)
+        return diff > 180
+
+    def get_angle(time: Time):
         earth_pos = earth.at(time)
+
         sun_pos = earth_pos.observe(
             sun
         ).apparent()  # Never do this without eyes protection!
         aster_pos = earth_pos.observe(get_skf_objects()[aster.skyfield_name]).apparent()
+
         _, lon1, _ = sun_pos.ecliptic_latlon()
         _, lon2, _ = aster_pos.ecliptic_latlon()
-        return (lon1.degrees - lon2.degrees) > 180
+
+        return lon1.degrees - lon2.degrees
 
     is_oppositing.rough_period = 1.0
     events = []
 
     for aster in ASTERS:
-        if not isinstance(aster, Planet) or aster.skyfield_name in ["MERCURY", "VENUS"]:
+        if not isinstance(aster, Planet) or aster.identifier in [
+            ObjectIdentifier.MERCURY,
+            ObjectIdentifier.VENUS,
+        ]:
             continue
 
         times, _ = find_discrete(start_time, end_time, is_oppositing)
         for time in times:
+            if get_angle(time) < 0:
+                # If the angle is negative, then it is actually a false positive.
+                # Just ignoring it.
+                continue
+
             events.append(
                 Event(
                     EventType.OPPOSITION,
@@ -213,31 +245,40 @@ def _search_moon_perigee(start_time: Time, end_time: Time, timezone: int) -> [Ev
     return events
 
 
-def get_events(date: date_type = date_type.today(), timezone: int = 0) -> [Event]:
+def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
     """Calculate and return a list of events for the given date, adjusted to the given timezone if any.
 
     Find events that happen on April 4th, 2020 (show hours in UTC):
 
-    >>> get_events(date_type(2020, 4, 4))
+    >>> get_events(date(2020, 4, 4))
     [<Event type=CONJUNCTION objects=[<Object type=PLANET name=MERCURY />, <Object type=PLANET name=NEPTUNE />] start=2020-04-04 01:14:39.063308+00:00 end=None details=None />]
 
     Find events that happen on April 4th, 2020 (show timezones in UTC+2):
 
-    >>> get_events(date_type(2020, 4, 4), 2)
+    >>> get_events(date(2020, 4, 4), 2)
     [<Event type=CONJUNCTION objects=[<Object type=PLANET name=MERCURY />, <Object type=PLANET name=NEPTUNE />] start=2020-04-04 03:14:39.063267+02:00 end=None details=None />]
 
     Find events that happen on April 3rd, 2020 (show timezones in UTC-2):
 
-    >>> get_events(date_type(2020, 4, 3), -2)
+    >>> get_events(date(2020, 4, 3), -2)
     [<Event type=CONJUNCTION objects=[<Object type=PLANET name=MERCURY />, <Object type=PLANET name=NEPTUNE />] start=2020-04-03 23:14:39.063388-02:00 end=None details=None />]
 
-    :param date: the date for which the events must be calculated
+    If there is no events for the given date, then an empty list is returned:
+
+    >>> get_events(date(2021, 3, 20))
+    []
+
+    :param for_date: the date for which the events must be calculated
     :param timezone: the timezone to adapt the results to. If not given, defaults to 0.
     :return: a list of events found for the given date.
     """
 
-    start_time = get_timescale().utc(date.year, date.month, date.day, -timezone)
-    end_time = get_timescale().utc(date.year, date.month, date.day + 1, -timezone)
+    start_time = get_timescale().utc(
+        for_date.year, for_date.month, for_date.day, -timezone
+    )
+    end_time = get_timescale().utc(
+        for_date.year, for_date.month, for_date.day + 1, -timezone
+    )
 
     try:
         found_events = []
@@ -256,7 +297,7 @@ def get_events(date: date_type = date_type.today(), timezone: int = 0) -> [Event
         start_date = translate_to_timezone(error.start_time.utc_datetime(), timezone)
         end_date = translate_to_timezone(error.end_time.utc_datetime(), timezone)
 
-        start_date = date_type(start_date.year, start_date.month, start_date.day)
-        end_date = date_type(end_date.year, end_date.month, end_date.day)
+        start_date = date(start_date.year, start_date.month, start_date.day)
+        end_date = date(end_date.year, end_date.month, end_date.day)
 
         raise OutOfRangeDateError(start_date, end_date) from error
