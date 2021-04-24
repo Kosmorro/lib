@@ -114,9 +114,15 @@ class Object(Serializable):
         )
 
     def serialize(self) -> dict:
+        """Serialize the given object
+
+        >>> planet = Planet(ObjectIdentifier.MARS, "MARS")
+        >>> planet.serialize()
+        {'identifier': 'MARS', 'type': 'PLANET', 'radius': None}
+        """
         return {
             "identifier": self.identifier.name,
-            "type": self.get_type(),
+            "type": self.get_type().name,
             "radius": self.radius,
         }
 
