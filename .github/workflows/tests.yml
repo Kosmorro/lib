@@ -31,9 +31,15 @@ jobs:
       with:
         python-version: ${{ matrix.python_version }}
 
-    - name: Prepare environment
+    - name: Prepare environment (non-Windows systems)
+      if: ${{ matrix.os != 'windows-2019' }}
       run: |
         pip install --upgrade pip pipenv
+
+    - name: Prepare environment (Windows)
+      if: ${{ matrix.os == 'windows-2019' }}
+      run: |
+        python -mpip install --upgrade pip pipenv
 
     - name: Install dependencies (all systems)
       run: |
@@ -41,11 +47,11 @@ jobs:
         pipenv sync --dev
         pipenv install --dev
 
-    - name: Install dependencies (Windows-specific)
+    - name: Install dependencies (Windows)
       if: ${{ matrix.os == 'windows-2019' }}
       run: |
         pipenv lock --dev -r > requirements.txt
-        pip install -r requirements.txt
+        python -mpip install -r requirements.txt
 
     - name: Run legacy tests
       run: |
@@ -75,9 +81,15 @@ jobs:
       with:
         python-version: ${{ matrix.python_version }}
 
-    - name: Prepare environment
+    - name: Prepare environment (non-Windows systems)
+      if: ${{ matrix.os != 'windows-2019' }}
       run: |
         pip install --upgrade pip pipenv
+
+    - name: Prepare environment (Windows)
+      if: ${{ matrix.os == 'windows-2019' }}
+      run: |
+        python -mpip install --upgrade pip pipenv
 
     - name: Install dependencies (all systems)
       run: |
@@ -85,11 +97,11 @@ jobs:
         pipenv sync --dev
         pipenv install --dev
 
-    - name: Install dependencies (Windows-specific)
+    - name: Install dependencies (Windows)
       if: ${{ matrix.os == 'windows-2019' }}
       run: |
         pipenv lock -r > requirements.txt
-        pip install -r requirements.txt
+        python -mpip install -r requirements.txt
 
     - name: Run doc tests (with coverage)
       if: ${{ matrix.os == 'ubuntu-20.04' && matrix.python_version == '3.9' }}
