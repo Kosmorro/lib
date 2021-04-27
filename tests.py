@@ -9,7 +9,7 @@ if __name__ == "__main__":
     failures = 0
     tests = 0
 
-    for module in [events, ephemerides]:
+    for module in [events, ephemerides, model]:
         (f, t) = doctest.testmod(module)
         failures += f
         tests += t
