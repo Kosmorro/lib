@@ -1,3 +1,17 @@
+# [Version 0.11.1](https://github.com/Kosmorro/lib/compare/v0.11.0...v0.11.1) (2021-05-01)
+
+
+### Bug Fixes
+
+* false positives on opposition ([#17](https://github.com/Kosmorro/lib/issues/17)) ([03f0c57](https://github.com/Kosmorro/lib/commit/03f0c57042604e7690cd736a6e9fa94ffd2b00e4))
+* fix error in the serialization of the Object type ([#18](https://github.com/Kosmorro/lib/issues/18)) ([9ad4371](https://github.com/Kosmorro/lib/commit/9ad437103267b404cab689c4a3bc9dd6b7457561))
+* remove useless dev dependencies ([#16](https://github.com/Kosmorro/lib/issues/16)) ([152efe7](https://github.com/Kosmorro/lib/commit/152efe72e15de69939c8d558fa6ceaafba4139bd))
+
+### Misc.
+
+* Kosmorrolib now supports Windows environment! ([#14](https://github.com/Kosmorro/lib/pull/14)) ([746ce95](https://github.com/Kosmorro/lib/commit/746ce953c839d9050862c465c036f53c6491e8da))
+
+
 # [Version 0.11.0](https://github.com/Kosmorro/lib/compare/v0.10.0...v0.11.0) (2021-04-18)
 
 
