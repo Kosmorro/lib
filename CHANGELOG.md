@@ -1,3 +1,12 @@
+# [Version 0.11.2](https://github.com/Kosmorro/lib/compare/v0.11.1...v0.11.2) (2021-05-08)
+
+
+### Bug Fixes
+
+* "minute must be in 0..59" error ([#20](https://github.com/Kosmorro/lib/issues/20)) ([592f8b1](https://github.com/Kosmorro/lib/commit/592f8b15d06e55fd8f0ba174972282e4c8eda6a0))
+
+
+
 # [Version 0.11.1](https://github.com/Kosmorro/lib/compare/v0.11.0...v0.11.1) (2021-05-01)
 
 
