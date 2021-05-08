@@ -22,11 +22,17 @@ def normalize_datetime(date: datetime) -> datetime:
 
     >>> normalize_datetime(datetime(2021, 6, 9, 2, 30, 30))
     datetime.datetime(2021, 6, 9, 2, 31)
+
+    >>> normalize_datetime(datetime(2021, 6, 9, 23, 59, 59))
+    datetime.datetime(2021, 6, 10, 0, 0)
+
+    >>> normalize_datetime(datetime(2021, 12, 31, 23, 59, 59))
+    datetime.datetime(2022, 1, 1, 0, 0)
     """
-    return datetime(
-        date.year,
-        date.month,
-        date.day,
-        date.hour,
-        date.minute if date.second < 30 else date.minute + 1,
-    )
+
+    new_date = datetime(date.year, date.month, date.day, date.hour, date.minute)
+
+    if date.second >= 30:
+        new_date += timedelta(minutes=1)
+
+    return new_date
