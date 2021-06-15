@@ -245,6 +245,13 @@ def _search_moon_perigee(start_time: Time, end_time: Time, timezone: int) -> [Ev
     return events
 
 
+def _earth_change_season(start_time: Time, end_time: Time, timezone: int):
+    event = []
+    t, y = almanac.find_discrete(start_time,end_time,almanac.seasons(eph))
+    for yi, ti in zip(y,t):
+        event.appendn(EventType.EARTH_SEASON_CHANGE,almanac.SEASON_EVENT[yi],ti.utc_iso(' ')) 
+    return event
+
 def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
     """Calculate and return a list of events for the given date, adjusted to the given timezone if any.
 

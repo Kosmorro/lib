@@ -25,7 +25,7 @@ class EventType(Enum):
     MAXIMAL_ELONGATION = 4
     MOON_PERIGEE = 5
     MOON_APOGEE = 6
-
+    EARTH_SEASON_CHANGE = 7
 
 class ObjectType(Enum):
     """An enumeration of object types"""
