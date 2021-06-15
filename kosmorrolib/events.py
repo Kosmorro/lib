@@ -296,6 +296,7 @@ def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
             _search_maximal_elongations,
             _search_moon_apogee,
             _search_moon_perigee,
+            _earth_change_season
         ]:
             found_events.append(fun(start_time, end_time, timezone))
 
