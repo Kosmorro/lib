@@ -6,6 +6,8 @@ from skyfield.errors import EphemerisRangeError
 from skyfield.timelib import Time
 from skyfield.searchlib import find_discrete, find_maxima, find_minima
 from numpy import pi
+from skyfield import almanac
+from skyfield import api
 
 from .model import Event, Star, Planet, ASTERS
 from .dateutil import translate_to_timezone
@@ -245,11 +247,32 @@ def _search_moon_perigee(start_time: Time, end_time: Time, timezone: int) -> [Ev
     return events
 
 
-def _earth_change_season(start_time: Time, end_time: Time, timezone: int):
+def _search_earth_season_change(start_time: Time, end_time: Time, timezone: int) -> [Event]:
+    """Function to find earth season change event.
+
+    **Warning:** this is an internal function, not intended for use by end-developers.
+
+    Will return Summer Solstice and Autumnal Equinox on respectively 2020-06-20 and 2020-09-21:
+
+    >>> season_change = _search_earth_season_change(get_timescale().utc(2020, 5, 13), get_timescale().utc(2020, 10, 14), 0)
+    >>> len(season_change)
+    2
+    >>> oppositions[0].objects[0]
+    'Summer Solstice'
+
+    Will return nothing if there is no season change event in the period of time being calculated:
+
+    >>> _search_oppositions(get_timescale().utc(2021, 3, 20), get_timescale().utc(2021, 3, 21), 0)
+    []
+    """
+    eph = api.load('de421.bsp')
     event = []
     t, y = almanac.find_discrete(start_time,end_time,almanac.seasons(eph))
     for yi, ti in zip(y,t):
-        event.appendn(EventType.EARTH_SEASON_CHANGE,almanac.SEASON_EVENT[yi],ti.utc_iso(' ')) 
+        event.append(Event(
+            EventType[f'{almanac.SEASON_EVENTS[yi].upper().replace(" ","_")}'],
+            [almanac.SEASON_EVENTS[yi]],
+            ti.utc_iso(' '))) 
     return event
 
 def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
