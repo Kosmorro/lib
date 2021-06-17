@@ -11,7 +11,7 @@ from skyfield import api
 
 from .model import Event, Star, Planet, ASTERS
 from .dateutil import translate_to_timezone
-from .enum import EventType, ObjectIdentifier
+from .enum import EventType, ObjectIdentifier, SeasonType
 from .exceptions import OutOfRangeDateError
 from .core import get_timescale, get_skf_objects, flatten_list
 
@@ -254,7 +254,7 @@ def _search_earth_season_change(start_time: Time, end_time: Time, timezone: int)
 
     Will return Summer Solstice and Autumnal Equinox on respectively 2020-06-20 and 2020-09-21:
 
-    >>> season_change = _search_earth_season_change(get_timescale().utc(2020, 5, 13), get_timescale().utc(2020, 10, 14), 0)
+    >>> season_change = _search_earth_season_change(get_timescale().utc(2020, 6, 20), get_timescale().utc(2020, 6, 21), 0)
     >>> len(season_change)
     2
     >>> oppositions[0].objects[0]
@@ -265,15 +265,19 @@ def _search_earth_season_change(start_time: Time, end_time: Time, timezone: int)
     >>> _search_oppositions(get_timescale().utc(2021, 3, 20), get_timescale().utc(2021, 3, 21), 0)
     []
     """
-    eph = api.load('de421.bsp')
-    event = []
-    t, y = almanac.find_discrete(start_time,end_time,almanac.seasons(eph))
-    for yi, ti in zip(y,t):
-        event.append(Event(
-            EventType[f'{almanac.SEASON_EVENTS[yi].upper().replace(" ","_")}'],
-            [almanac.SEASON_EVENTS[yi]],
-            ti.utc_iso(' '))) 
-    return event
+    
+    events = []
+    t, y = almanac.find_discrete(start_time,end_time,almanac.seasons(get_skf_objects()))
+    if len(t) == 0:
+        return []
+    else:
+        events.append(Event(
+            SeasonType(y[0]),
+            [],
+            translate_to_timezone(t.utc_datetime()[0], timezone))) 
+        return events
+
+
 
 def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
     """Calculate and return a list of events for the given date, adjusted to the given timezone if any.
