@@ -108,8 +108,8 @@ jobs:
       run: |
         make coverage-doctests
 
-    - name: Run doc tests
-      if: ${{ matrix.os != 'ubuntu-20.04' && matrix.python_version != '3.9' }}
+    - name: Run doc tests (without coverage)
+      if: ${{ matrix.os != 'ubuntu-20.04' || matrix.python_version != '3.9' }}
       run: |
         make doctests
 
