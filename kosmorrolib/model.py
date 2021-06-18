@@ -154,7 +154,7 @@ class Event(Serializable):
         objects: [Object],
         start_time: datetime,
         end_time: Union[datetime, None] = None,
-        details: dict=None,
+        details: dict = None,
     ):
         self.event_type = event_type
         self.objects = objects

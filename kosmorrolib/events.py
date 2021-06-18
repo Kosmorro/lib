@@ -17,6 +17,23 @@ from .core import get_timescale, get_skf_objects, flatten_list
 
 
 def _search_conjunction(start_time: Time, end_time: Time, timezone: int) -> [Event]:
+    """Function to search conjunction.
+
+    **Warning:** this is an internal function, not intended for use by end-developers.
+
+    Will return MOON and VENUS opposition on 2021-06-12:
+
+    >>> conjunction = _search_conjunction(get_timescale().utc(2021,6,12),get_timescale().utc(2021,6,13),0)
+    >>> len(conjunction)
+    1
+    >>> conjunction[0].objects
+    [<Object type=SATELLITE name=MOON />, <Object type=PLANET name=VENUS />]
+
+    Will return nothing if no conjunction happens:
+
+    >>> _search_conjunction(get_timescale().utc(2021,6,17),get_timescale().utc(2021,6,18),0)
+    []
+    """
     earth = get_skf_objects()["earth"]
     aster1 = None
     aster2 = None
@@ -252,17 +269,19 @@ def _search_earth_season_change(start_time: Time, end_time: Time, timezone: int)
 
     **Warning:** this is an internal function, not intended for use by end-developers.
 
-    Will return Summer Solstice and Autumnal Equinox on respectively 2020-06-20 and 2020-09-21:
+    Will return JUNE SOLSTICE on 2020/06/20:
 
     >>> season_change = _search_earth_season_change(get_timescale().utc(2020, 6, 20), get_timescale().utc(2020, 6, 21), 0)
     >>> len(season_change)
-    2
-    >>> oppositions[0].objects[0]
-    'Summer Solstice'
+    1
+    >>> season_change[0].event_type
+    <EventType.SEASON_CHANGE: 7>
+    >>> season_change[0].details
+    {'season': <SeasonType.JUNE_SOLSTICE: 1>}
 
     Will return nothing if there is no season change event in the period of time being calculated:
 
-    >>> _search_earh_season_change(get_timescale().utc(2021, 3, 20), get_timescale().utc(2021, 3, 21), 0)
+    >>> _search_earth_season_change(get_timescale().utc(2021, 6, 17), get_timescale().utc(2021, 6, 18), 0)
     []
     """
     
@@ -270,13 +289,12 @@ def _search_earth_season_change(start_time: Time, end_time: Time, timezone: int)
     t, y = almanac.find_discrete(start_time,end_time,almanac.seasons(get_skf_objects()))
     if len(t) == 0:
         return []
-    else:
-        events.append(Event(
-            EventType.SEASON_CHANGE,
-            [],
-            translate_to_timezone(t.utc_datetime()[0], timezone),
-            details={'season':SeasonType(y[0])} )) 
-        return events
+    events.append(Event(
+        EventType.SEASON_CHANGE,
+        [],
+        translate_to_timezone(t.utc_datetime()[0], timezone),
+        details={'season':SeasonType(y[0])} )) 
+    return events
 
 
 
@@ -300,7 +318,7 @@ def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
 
     If there is no events for the given date, then an empty list is returned:
 
-    >>> get_events(date(2021, 3, 20))
+    >>> get_events(date(2021, 4, 20))
     []
 
     :param for_date: the date for which the events must be calculated
@@ -324,7 +342,7 @@ def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
             _search_maximal_elongations,
             _search_moon_apogee,
             _search_moon_perigee,
-            _earth_change_season
+            _search_earth_season_change
         ]:
             found_events.append(fun(start_time, end_time, timezone))
 
