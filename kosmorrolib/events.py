@@ -262,7 +262,7 @@ def _search_earth_season_change(start_time: Time, end_time: Time, timezone: int)
 
     Will return nothing if there is no season change event in the period of time being calculated:
 
-    >>> _search_oppositions(get_timescale().utc(2021, 3, 20), get_timescale().utc(2021, 3, 21), 0)
+    >>> _search_earh_season_change(get_timescale().utc(2021, 3, 20), get_timescale().utc(2021, 3, 21), 0)
     []
     """
     
@@ -274,8 +274,8 @@ def _search_earth_season_change(start_time: Time, end_time: Time, timezone: int)
         events.append(Event(
             EventType.SEASON_CHANGE,
             [],
-            translate_to_timezone(t.utc_datetime()[0], timezone)),
-            details={'season':SeasonType(y[0])} ) 
+            translate_to_timezone(t.utc_datetime()[0], timezone),
+            details={'season':SeasonType(y[0])} )) 
         return events
 
 
