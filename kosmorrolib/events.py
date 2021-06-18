@@ -185,7 +185,7 @@ def _search_maximal_elongations(
                     EventType.MAXIMAL_ELONGATION,
                     [aster],
                     translate_to_timezone(time.utc_datetime(), timezone),
-                    details="{:.3n}°".format(elongation),
+                    details={ 'deg': elongation},
                 )
             )
 
@@ -272,9 +272,10 @@ def _search_earth_season_change(start_time: Time, end_time: Time, timezone: int)
         return []
     else:
         events.append(Event(
-            SeasonType(y[0]),
+            EventType.SEASON_CHANGE,
             [],
-            translate_to_timezone(t.utc_datetime()[0], timezone))) 
+            translate_to_timezone(t.utc_datetime()[0], timezone)),
+            details={'season':SeasonType(y[0])} ) 
         return events
 
 
