@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from enum import Enum, auto
+from enum import Enum
 
 
 class MoonPhaseType(Enum):
