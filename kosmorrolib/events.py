@@ -5,15 +5,14 @@ from datetime import date
 from skyfield.errors import EphemerisRangeError
 from skyfield.timelib import Time
 from skyfield.searchlib import find_discrete, find_maxima, find_minima
-from numpy import pi
 from skyfield import almanac
-from skyfield import api
+from numpy import pi
 
-from .model import Event, Star, Planet, ASTERS
-from .dateutil import translate_to_timezone
-from .enum import EventType, ObjectIdentifier, SeasonType
-from .exceptions import OutOfRangeDateError
-from .core import get_timescale, get_skf_objects, flatten_list
+from kosmorrolib.model import Event, Star, Planet, ASTERS
+from kosmorrolib.dateutil import translate_to_timezone
+from kosmorrolib.enum import EventType, ObjectIdentifier, SeasonType
+from kosmorrolib.exceptions import OutOfRangeDateError
+from kosmorrolib.core import get_timescale, get_skf_objects, flatten_list
 
 
 def _search_conjunction(start_time: Time, end_time: Time, timezone: int) -> [Event]:
@@ -284,16 +283,15 @@ def _search_earth_season_change(start_time: Time, end_time: Time, timezone: int)
     >>> _search_earth_season_change(get_timescale().utc(2021, 6, 17), get_timescale().utc(2021, 6, 18), 0)
     []
     """
-    
     events = []
-    t, y = almanac.find_discrete(start_time,end_time,almanac.seasons(get_skf_objects()))
-    if len(t) == 0:
+    event_time, event_id = almanac.find_discrete(start_time,end_time,almanac.seasons(get_skf_objects()))
+    if len(event_time) == 0:
         return []
     events.append(Event(
         EventType.SEASON_CHANGE,
         [],
-        translate_to_timezone(t.utc_datetime()[0], timezone),
-        details={'season':SeasonType(y[0])} )) 
+        translate_to_timezone(event_time.utc_datetime()[0], timezone),
+        details={'season':SeasonType(event_id[0])}))
     return events
 
 
