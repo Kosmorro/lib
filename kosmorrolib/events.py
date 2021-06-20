@@ -195,13 +195,13 @@ def _search_maximal_elongations(
         )
 
         for i, time in enumerate(times):
-            elongation = elongations[i]
+            elongation = round(elongations[i],1)
             events.append(
                 Event(
                     EventType.MAXIMAL_ELONGATION,
                     [aster],
                     translate_to_timezone(time.utc_datetime(), timezone),
-                    details={ 'deg': elongation},
+                    details={"deg": f"{elongation}°"},
                 )
             )
 
@@ -263,7 +263,9 @@ def _search_moon_perigee(start_time: Time, end_time: Time, timezone: int) -> [Ev
     return events
 
 
-def _search_earth_season_change(start_time: Time, end_time: Time, timezone: int) -> [Event]:
+def _search_earth_season_change(
+    start_time: Time, end_time: Time, timezone: int
+) -> [Event]:
     """Function to find earth season change event.
 
     **Warning:** this is an internal function, not intended for use by end-developers.
@@ -284,16 +286,20 @@ def _search_earth_season_change(start_time: Time, end_time: Time, timezone: int)
     []
     """
     events = []
-    event_time, event_id = almanac.find_discrete(start_time,end_time,almanac.seasons(get_skf_objects()))
+    event_time, event_id = almanac.find_discrete(
+        start_time, end_time, almanac.seasons(get_skf_objects())
+    )
     if len(event_time) == 0:
         return []
-    events.append(Event(
-        EventType.SEASON_CHANGE,
-        [],
-        translate_to_timezone(event_time.utc_datetime()[0], timezone),
-        details={'season':SeasonType(event_id[0])}))
+    events.append(
+        Event(
+            EventType.SEASON_CHANGE,
+            [],
+            translate_to_timezone(event_time.utc_datetime()[0], timezone),
+            details={"season": SeasonType(event_id[0])},
+        )
+    )
     return events
-
 
 
 def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
@@ -340,7 +346,7 @@ def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
             _search_maximal_elongations,
             _search_moon_apogee,
             _search_moon_perigee,
-            _search_earth_season_change
+            _search_earth_season_change,
         ]:
             found_events.append(fun(start_time, end_time, timezone))
 

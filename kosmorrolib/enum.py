@@ -15,11 +15,13 @@ class MoonPhaseType(Enum):
     LAST_QUARTER = 7
     WANING_CRESCENT = 8
 
+
 class SeasonType(Enum):
     MARCH_EQUINOX = 0
     JUNE_SOLSTICE = 1
     SEPTEMBER_EQUINOX = 2
     DECEMBER_SOLSTICE = 3
+
 
 class EventType(Enum):
     """An enumeration for the supported event types."""
