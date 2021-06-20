@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from enum import Enum, auto
+from enum import Enum
 
 
 class MoonPhaseType(Enum):
@@ -16,6 +16,13 @@ class MoonPhaseType(Enum):
     WANING_CRESCENT = 8
 
 
+class SeasonType(Enum):
+    MARCH_EQUINOX = 0
+    JUNE_SOLSTICE = 1
+    SEPTEMBER_EQUINOX = 2
+    DECEMBER_SOLSTICE = 3
+
+
 class EventType(Enum):
     """An enumeration for the supported event types."""
 
@@ -25,6 +32,7 @@ class EventType(Enum):
     MAXIMAL_ELONGATION = 4
     MOON_PERIGEE = 5
     MOON_APOGEE = 6
+    SEASON_CHANGE = 7
 
 
 class ObjectType(Enum):
