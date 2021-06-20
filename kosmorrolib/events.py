@@ -195,13 +195,13 @@ def _search_maximal_elongations(
         )
 
         for i, time in enumerate(times):
-            elongation = round(elongations[i],1)
+            elongation = round(elongations[i], 1)
             events.append(
                 Event(
                     EventType.MAXIMAL_ELONGATION,
                     [aster],
                     translate_to_timezone(time.utc_datetime(), timezone),
-                    details={"deg": f"{elongation}°"},
+                    details={"deg": elongation},
                 )
             )
 
