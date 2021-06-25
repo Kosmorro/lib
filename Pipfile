@@ -13,6 +13,7 @@ coverage = "*"
 skyfield = ">=1.32.0,<2.0.0"
 numpy = ">=1.17.0,<2.0.0"
 python-dateutil = ">=2.8.0,<3.0.0"
+skyfield-data = ">=3.0.0,<4.0.0"
 
 [requires]
 python_version = "3"
