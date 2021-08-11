@@ -1,5 +1,21 @@
 #!/usr/bin/env python3
 
+#    Kosmorrolib - The Library To Compute Your Ephemerides
+#    Copyright (C) 2021  Jérôme Deuchnord <jerome@deuchnord.fr>
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation, either version 3 of the
+#    License, or (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import pathlib
 from setuptools import setup, find_packages
 
@@ -14,7 +30,7 @@ setup(
     author="Jérôme Deuchnord",
     author_email="jerome@deuchnord.fr",
     url="http://kosmorro.space",
-    license="CECILL-C",
+    license="AGPL-v3",
     description="A library to computes the ephemerides.",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -29,7 +45,7 @@ setup(
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Intended Audience :: Education",
-        "License :: CeCILL-C Free Software License Agreement (CECILL-C)",
+        "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
