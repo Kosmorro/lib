@@ -1,0 +1,11 @@
+github:
+  prebuilds:
+    pullRequestsFromForks: true
+
+vscode:
+  extensions:
+    - ms-vscode.makefile-tools
+
+tasks:
+  - before: pip install -U pip pipenv
+    init: pipenv sync --dev --pre
