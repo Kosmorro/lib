@@ -15,7 +15,9 @@ If it is not, [create a bug report](https://github.com/Kosmorro/lib/issues/new/c
 Have an idea of feature you think would be nice on Kosmorro? Time to suggest it!
 First, please check someone didn't suggest your next revolution in the _Issues_ tab. If it's not, [create a feature request](https://github.com/Deuchnord/kosmorro/issues/new/choose) and fill in the templace that offers to you.
 
-## Writing code [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/Kosmorro/lib)
+## Writing code
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/Kosmorro/lib)
 
 First of all, if you are fixing an opened issue, check that nobody is already working on it — if someone seems to be but their Pull Request seems stuck, please ask them first if you can continue the development. If you retake the code they produced, **don't change the author of the commits**.
 
