@@ -8,4 +8,4 @@ vscode:
 
 tasks:
   - before: pip install -U pip pipenv
-    init: pipenv sync --dev --pre
+    init: pipenv lock --pre && pipenv sync --dev --pre
