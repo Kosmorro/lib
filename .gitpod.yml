@@ -5,6 +5,7 @@ github:
 vscode:
   extensions:
     - ms-vscode.makefile-tools
+    - editorconfig.editorconfig
 
 tasks:
   - before: pip install -U pip pipenv

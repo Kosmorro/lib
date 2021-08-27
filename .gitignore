@@ -4,3 +4,6 @@ Pipfile.lock
 /build
 /dist
 /kosmorrolib.egg-info
+
+# Gitpod-specific:
+/.vscode/**
