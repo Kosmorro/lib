@@ -16,17 +16,18 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from datetime import date
+from datetime import date, timedelta
 
 from skyfield.errors import EphemerisRangeError
 from skyfield.timelib import Time
 from skyfield.searchlib import find_discrete, find_maxima, find_minima
-from skyfield import almanac
+from skyfield.units import Angle
+from skyfield import almanac, eclipselib
 from numpy import pi
 
-from kosmorrolib.model import Event, Star, Planet, ASTERS
+from kosmorrolib.model import Event, Star, Planet, ASTERS, EARTH
 from kosmorrolib.dateutil import translate_to_timezone
-from kosmorrolib.enum import EventType, ObjectIdentifier, SeasonType
+from kosmorrolib.enum import EventType, ObjectIdentifier, SeasonType, LunarEclipseType
 from kosmorrolib.exceptions import OutOfRangeDateError
 from kosmorrolib.core import get_timescale, get_skf_objects, flatten_list
 
@@ -318,6 +319,82 @@ def _search_earth_season_change(
     return events
 
 
+def _search_lunar_eclipse(start_time: Time, end_time: Time, timezone: int) -> [Event]:
+    """Function to detect lunar eclipses.
+
+    **Warning:** this is an internal function, not intended for use by end-developers.
+
+    Will return a total lunar eclipse for 2021-05-26:
+
+    >>> _search_lunar_eclipse(get_timescale().utc(2021, 5, 26), get_timescale().utc(2021, 5, 27), 0)
+    [<Event type=LUNAR_ECLIPSE objects=[<Object type=SATELLITE name=MOON />] start=2021-05-26 08:47:54.795821+00:00 end=2021-05-26 13:49:34.353411+00:00 details={'type': <LunarEclipseType.TOTAL: 2>, 'maximum': datetime.datetime(2021, 5, 26, 11, 18, 42, 328842, tzinfo=datetime.timezone.utc)} />]
+
+    >>> _search_lunar_eclipse(get_timescale().utc(2019, 7, 16), get_timescale().utc(2019, 7, 17), 0)
+    [<Event type=LUNAR_ECLIPSE objects=[<Object type=SATELLITE name=MOON />] start=2019-07-16 18:39:53.391337+00:00 end=2019-07-17 00:21:51.378940+00:00 details={'type': <LunarEclipseType.PARTIAL: 1>, 'maximum': datetime.datetime(2019, 7, 16, 21, 30, 44, 170096, tzinfo=datetime.timezone.utc)} />]
+
+    >>> _search_lunar_eclipse(get_timescale().utc(2017, 2, 11), get_timescale().utc(2017, 2, 12), 0)
+    [<Event type=LUNAR_ECLIPSE objects=[<Object type=SATELLITE name=MOON />] start=2017-02-10 22:02:59.016572+00:00 end=2017-02-11 03:25:07.627886+00:00 details={'type': <LunarEclipseType.PENUMBRAL: 0>, 'maximum': datetime.datetime(2017, 2, 11, 0, 43, 51, 793786, tzinfo=datetime.timezone.utc)} />]
+    """
+    moon = ASTERS[1]
+    events = []
+    t, y, details = eclipselib.lunar_eclipses(start_time, end_time, get_skf_objects())
+
+    for ti, yi in zip(t, y):
+        penumbra_radius = Angle(radians=details["penumbra_radius_radians"][0])
+        _, max_lon, _ = (
+            EARTH.get_skyfield_object()
+            .at(ti)
+            .observe(moon.get_skyfield_object())
+            .apparent()
+            .ecliptic_latlon()
+        )
+
+        def is_in_penumbra(time: Time):
+            _, lon, _ = (
+                EARTH.get_skyfield_object()
+                .at(time)
+                .observe(moon.get_skyfield_object())
+                .apparent()
+                .ecliptic_latlon()
+            )
+
+            moon_radius = details["moon_radius_radians"]
+
+            return (
+                abs(max_lon.radians - lon.radians)
+                < penumbra_radius.radians + moon_radius
+            )
+
+        is_in_penumbra.rough_period = 60.0
+
+        search_start_time = get_timescale().from_datetime(
+            start_time.utc_datetime() - timedelta(days=1)
+        )
+        search_end_time = get_timescale().from_datetime(
+            end_time.utc_datetime() + timedelta(days=1)
+        )
+
+        eclipse_start, _ = find_discrete(search_start_time, ti, is_in_penumbra)
+        eclipse_end, _ = find_discrete(ti, search_end_time, is_in_penumbra)
+
+        events.append(
+            Event(
+                EventType.LUNAR_ECLIPSE,
+                [moon],
+                start_time=translate_to_timezone(
+                    eclipse_start[0].utc_datetime(), timezone
+                ),
+                end_time=translate_to_timezone(eclipse_end[0].utc_datetime(), timezone),
+                details={
+                    "type": LunarEclipseType(yi),
+                    "maximum": translate_to_timezone(ti.utc_datetime(), timezone),
+                },
+            )
+        )
+
+    return events
+
+
 def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
     """Calculate and return a list of events for the given date, adjusted to the given timezone if any.
 
@@ -363,6 +440,7 @@ def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
             _search_moon_apogee,
             _search_moon_perigee,
             _search_earth_season_change,
+            _search_lunar_eclipse,
         ]:
             found_events.append(fun(start_time, end_time, timezone))
 
