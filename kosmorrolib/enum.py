@@ -49,6 +49,15 @@ class EventType(Enum):
     MOON_PERIGEE = 5
     MOON_APOGEE = 6
     SEASON_CHANGE = 7
+    LUNAR_ECLIPSE = 8
+
+
+class LunarEclipseType(Enum):
+    """An enumeration of lunar eclipse types"""
+
+    PENUMBRAL = 0
+    PARTIAL = 1
+    TOTAL = 2
 
 
 class ObjectType(Enum):
