@@ -7,56 +7,6 @@ on:
     branches: [main, features]
 
 jobs:
-  legacy-tests:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-18.04
-          - ubuntu-20.04
-          - macos-10.15
-          - macos-11.0
-          - windows-2019
-        python_version:
-          - '3.7'
-          - '3.8'
-          - '3.9'
-
-    name: Legacy tests (Python ${{ matrix.python_version }} on ${{ matrix.os }})
-    steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python
-      uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python_version }}
-
-    - name: Prepare environment (non-Windows systems)
-      if: ${{ matrix.os != 'windows-2019' }}
-      run: |
-        pip install --upgrade pip pipenv
-
-    - name: Prepare environment (Windows)
-      if: ${{ matrix.os == 'windows-2019' }}
-      run: |
-        python -mpip install --upgrade pip pipenv
-
-    - name: Install dependencies (all systems)
-      run: |
-        pipenv lock --pre
-        pipenv sync --dev
-        pipenv install --dev
-
-    - name: Install dependencies (Windows)
-      if: ${{ matrix.os == 'windows-2019' }}
-      run: |
-        pipenv lock --dev -r > requirements.txt
-        python -mpip install -r requirements.txt
-
-    - name: Run legacy tests
-      run: |
-        make legacy-tests
-
   doc-tests:
     runs-on: ${{ matrix.os }}
     strategy:
