@@ -25,7 +25,7 @@ from skyfield.units import Angle
 from skyfield import almanac, eclipselib
 from numpy import pi
 
-from kosmorrolib.model import Event, Star, Planet, ASTERS, EARTH
+from kosmorrolib.model import Object, Event, Star, Planet, ASTERS, EARTH
 from kosmorrolib.dateutil import translate_to_timezone
 from kosmorrolib.enum import EventType, ObjectIdentifier, SeasonType, LunarEclipseType
 from kosmorrolib.exceptions import OutOfRangeDateError
@@ -225,59 +225,94 @@ def _search_maximal_elongations(
     return events
 
 
-def _get_moon_distance():
-    earth = get_skf_objects()["earth"]
-    moon = get_skf_objects()["moon"]
-
+def _get_distance(to_aster: Object, from_aster: Object):
     def get_distance(time: Time):
-        earth_pos = earth.at(time)
-        moon_pos = earth_pos.observe(moon).apparent()
+        from_pos = from_aster.get_skyfield_object().at(time)
+        to_pos = from_pos.observe(to_aster.get_skyfield_object())
 
-        return moon_pos.distance().au
+        return to_pos.distance().km
 
     get_distance.rough_period = 1.0
 
     return get_distance
 
 
-def _search_moon_apogee(start_time: Time, end_time: Time, timezone: int) -> [Event]:
-    moon = ASTERS[1]
-    events = []
+def _search_apogee(to_aster: Object, from_aster: Object = EARTH) -> callable:
+    """Search for moon apogee
 
-    times, _ = find_maxima(
-        start_time, end_time, f=_get_moon_distance(), epsilon=1.0 / 24 / 60
-    )
+    **Warning:** this is an internal function, not intended for use by end-developers.
 
-    for time in times:
-        events.append(
-            Event(
-                EventType.MOON_APOGEE,
-                [moon],
-                translate_to_timezone(time.utc_datetime(), timezone),
-            )
+    Get the moon apogee:
+    >>> _search_apogee(ASTERS[1])(get_timescale().utc(2021, 6, 8), get_timescale().utc(2021, 6, 9), 0)
+    [<Event type=APOGEE objects=[<Object type=SATELLITE name=MOON />] start=2021-06-08 02:39:40.165271+00:00 end=None details={'distance_km': 406211.04850197025} />]
+
+    Get the Earth's apogee:
+    >>> _search_apogee(EARTH, from_aster=ASTERS[0])(get_timescale().utc(2021, 7, 5), get_timescale().utc(2021, 7, 6), 0)
+    [<Event type=APOGEE objects=[<Object type=PLANET name=EARTH />] start=2021-07-05 22:35:42.148792+00:00 end=None details={'distance_km': 152100521.91712126} />]
+    """
+
+    def f(start_time: Time, end_time: Time, timezone: int) -> [Event]:
+        events = []
+
+        times, distances = find_maxima(
+            start_time,
+            end_time,
+            f=_get_distance(to_aster, from_aster),
+            epsilon=1.0 / 24 / 60,
         )
 
-    return events
-
-
-def _search_moon_perigee(start_time: Time, end_time: Time, timezone: int) -> [Event]:
-    moon = ASTERS[1]
-    events = []
-
-    times, _ = find_minima(
-        start_time, end_time, f=_get_moon_distance(), epsilon=1.0 / 24 / 60
-    )
-
-    for time in times:
-        events.append(
-            Event(
-                EventType.MOON_PERIGEE,
-                [moon],
-                translate_to_timezone(time.utc_datetime(), timezone),
+        for i, time in enumerate(times):
+            events.append(
+                Event(
+                    EventType.APOGEE,
+                    [to_aster],
+                    translate_to_timezone(time.utc_datetime(), timezone),
+                    details={"distance_km": distances[i]},
+                )
             )
+
+        return events
+
+    return f
+
+
+def _search_perigee(aster: Object, from_aster: Object = EARTH) -> callable:
+    """Search for moon perigee
+
+    **Warning:** this is an internal function, not intended for use by end-developers.
+
+    Get the moon perigee:
+    >>> _search_perigee(ASTERS[1])(get_timescale().utc(2021, 5, 26), get_timescale().utc(2021, 5, 27), 0)
+    [<Event type=PERIGEE objects=[<Object type=SATELLITE name=MOON />] start=2021-05-26 01:56:01.983455+00:00 end=None details={'distance_km': 357313.9680798693} />]
+
+    Get the Earth's perigee:
+    >>> _search_perigee(EARTH, from_aster=ASTERS[0])(get_timescale().utc(2021, 1, 2), get_timescale().utc(2021, 1, 3), 0)
+    [<Event type=PERIGEE objects=[<Object type=PLANET name=EARTH />] start=2021-01-02 13:59:00.495905+00:00 end=None details={'distance_km': 147093166.1686309} />]
+    """
+
+    def f(start_time: Time, end_time: Time, timezone: int) -> [Event]:
+        events = []
+
+        times, distances = find_minima(
+            start_time,
+            end_time,
+            f=_get_distance(aster, from_aster),
+            epsilon=1.0 / 24 / 60,
         )
 
-    return events
+        for i, time in enumerate(times):
+            events.append(
+                Event(
+                    EventType.PERIGEE,
+                    [aster],
+                    translate_to_timezone(time.utc_datetime(), timezone),
+                    details={"distance_km": distances[i]},
+                )
+            )
+
+        return events
+
+    return f
 
 
 def _search_earth_season_change(
@@ -437,8 +472,10 @@ def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
             _search_oppositions,
             _search_conjunction,
             _search_maximal_elongations,
-            _search_moon_apogee,
-            _search_moon_perigee,
+            _search_apogee(ASTERS[1]),
+            _search_perigee(ASTERS[1]),
+            _search_apogee(EARTH, from_aster=ASTERS[0]),
+            _search_perigee(EARTH, from_aster=ASTERS[0]),
             _search_earth_season_change,
             _search_lunar_eclipse,
         ]:

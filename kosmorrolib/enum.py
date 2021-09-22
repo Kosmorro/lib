@@ -46,8 +46,8 @@ class EventType(Enum):
     CONJUNCTION = 2
     OCCULTATION = 3
     MAXIMAL_ELONGATION = 4
-    MOON_PERIGEE = 5
-    MOON_APOGEE = 6
+    PERIGEE = 5
+    APOGEE = 6
     SEASON_CHANGE = 7
     LUNAR_ECLIPSE = 8
 
