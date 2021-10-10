@@ -19,11 +19,21 @@
 from datetime import datetime, timezone, timedelta
 
 
-def translate_to_timezone(date: datetime, to_tz: int, from_tz: int = None):
-    if from_tz is not None:
-        source_tz = timezone(timedelta(hours=from_tz))
-    else:
-        source_tz = timezone.utc
+def translate_to_timezone(date: datetime, to_tz: int):
+    """Convert a datetime from a timezone to another.
+
+    >>> translate_to_timezone(datetime(2021, 6, 9, 5, 0, 0, tzinfo=timezone.utc), 2)
+    datetime.datetime(2021, 6, 9, 7, 0, tzinfo=datetime.timezone(datetime.timedelta(seconds=7200)))
+
+    >>> translate_to_timezone(datetime(2021, 6, 9, 5, 0, 0, tzinfo=timezone(timedelta(hours=1))), 2)
+    datetime.datetime(2021, 6, 9, 6, 0, tzinfo=datetime.timezone(datetime.timedelta(seconds=7200)))
+
+    If the datetime has no timezone information, then it is interpreted as UTC:
+
+    >>> translate_to_timezone(datetime(2021, 6, 9, 5, 0, 0), 2)
+    datetime.datetime(2021, 6, 9, 7, 0, tzinfo=datetime.timezone(datetime.timedelta(seconds=7200)))
+    """
+    source_tz = date.tzinfo if date.tzinfo is not None else timezone.utc
 
     return date.replace(tzinfo=source_tz).astimezone(
         tz=timezone(timedelta(hours=to_tz))

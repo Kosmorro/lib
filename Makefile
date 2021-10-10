@@ -1,20 +1,17 @@
 black:
-	pipenv run black kosmorrolib tests setup.py
+	pipenv run black kosmorrolib setup.py
 
 .PHONY: tests
-tests: legacy-tests doctests
+tests: doctests
 
 coverage-doctests:
 	pipenv run python3 -m coverage run tests.py
 
+coverage-report:
+	pipenv run python3 -m coverage report
+
 doctests:
 	pipenv run python3 tests.py
-
-legacy-tests:
-	unset KOSMORRO_LATITUDE; \
-	unset KOSMORRO_LONGITUDE; \
-	unset KOSMORRO_TIMEZONE; \
-	pipenv run python3 -m unittest tests
 
 .PHONY: build
 build:

@@ -18,14 +18,14 @@
 
 from abc import ABC, abstractmethod
 from typing import Union
-from datetime import datetime
+from datetime import datetime, timezone
 
-from numpy import pi, arcsin
+import numpy
 
-from skyfield.api import Topos, Time
+from skyfield.api import Topos, Time, Angle
 from skyfield.vectorlib import VectorSum as SkfPlanet
 
-from .core import get_skf_objects
+from .core import get_skf_objects, get_timescale
 from .enum import MoonPhaseType, EventType, ObjectIdentifier, ObjectType
 
 
@@ -54,6 +54,48 @@ class MoonPhase(Serializable):
         )
 
     def get_next_phase(self):
+        """Helper to get the Moon phase that follows the one described by the object.
+
+        If the current Moon phase is New Moon or Waxing crescent, the next one will be First Quarter:
+
+        >>> moon_phase = MoonPhase(MoonPhaseType.NEW_MOON)
+        >>> moon_phase.get_next_phase()
+        <MoonPhaseType.FIRST_QUARTER: 2>
+
+        >>> moon_phase = MoonPhase(MoonPhaseType.NEW_MOON)
+        >>> moon_phase.get_next_phase()
+        <MoonPhaseType.FIRST_QUARTER: 2>
+
+        If the current Moon phase is First Quarter or Waxing gibbous, the next one will be Full Moon:
+
+        >>> moon_phase = MoonPhase(MoonPhaseType.FIRST_QUARTER)
+        >>> moon_phase.get_next_phase()
+        <MoonPhaseType.FULL_MOON: 4>
+
+        >>> moon_phase = MoonPhase(MoonPhaseType.WAXING_GIBBOUS)
+        >>> moon_phase.get_next_phase()
+        <MoonPhaseType.FULL_MOON: 4>
+
+        If the current Moon phase is Full Moon or Waning gibbous, the next one will be Last Quarter:
+
+        >>> moon_phase = MoonPhase(MoonPhaseType.FULL_MOON)
+        >>> moon_phase.get_next_phase()
+        <MoonPhaseType.LAST_QUARTER: 6>
+
+        >>> moon_phase = MoonPhase(MoonPhaseType.WANING_GIBBOUS)
+        >>> moon_phase.get_next_phase()
+        <MoonPhaseType.LAST_QUARTER: 6>
+
+        If the current Moon phase is Last Quarter Moon or Waning crescent, the next one will be New Moon:
+
+        >>> moon_phase = MoonPhase(MoonPhaseType.LAST_QUARTER)
+        >>> moon_phase.get_next_phase()
+        <MoonPhaseType.NEW_MOON: 0>
+
+        >>> moon_phase = MoonPhase(MoonPhaseType.WANING_CRESCENT)
+        >>> moon_phase.get_next_phase()
+        <MoonPhaseType.NEW_MOON: 0>
+        """
         if self.phase_type in [MoonPhaseType.NEW_MOON, MoonPhaseType.WAXING_CRESCENT]:
             return MoonPhaseType.FIRST_QUARTER
         if self.phase_type in [
@@ -83,18 +125,20 @@ class Object(Serializable):
     """
 
     def __init__(
-        self, identifier: ObjectIdentifier, skyfield_name: str, radius: float = None
+        self,
+        identifier: ObjectIdentifier,
+        skyfield_object: SkfPlanet,
+        radius: float = None,
     ):
         """
         Initialize an astronomical object
 
         :param ObjectIdentifier identifier: the official name of the object (may be internationalized)
-        :param str skyfield_name: the internal name of the object in Skyfield library
+        :param str skyfield_object: the object from Skyfield library
         :param float radius: the radius (in km) of the object
-        :param AsterEphemerides ephemerides: the ephemerides associated to the object
         """
         self.identifier = identifier
-        self.skyfield_name = skyfield_name
+        self.skyfield_object = skyfield_object
         self.radius = radius
 
     def __repr__(self):
@@ -103,31 +147,40 @@ class Object(Serializable):
             self.identifier.name,
         )
 
-    def get_skyfield_object(self) -> SkfPlanet:
-        return get_skf_objects()[self.skyfield_name]
-
     @abstractmethod
     def get_type(self) -> ObjectType:
         pass
 
-    def get_apparent_radius(self, time: Time, from_place) -> float:
-        """
-        Calculate the apparent radius, in degrees, of the object from the given place at a given time.
-        :param time:
-        :param from_place:
-        :return:
-        """
-        if self.radius is None:
-            raise ValueError("Missing radius for %s" % self.identifier.name)
+    def get_apparent_radius(self, for_date: Union[Time, datetime]) -> Angle:
+        """Calculate the apparent radius, in degrees, of the object from the given place at a given time.
 
-        return (
-            360
-            / pi
-            * arcsin(
-                self.radius
-                / from_place.at(time).observe(self.get_skyfield_object()).distance().km
-            )
+        **Warning:** this is an internal function, not intended for use by end-developers.
+
+        For an easier usage, this method accepts datetime and Skyfield's Time objects:
+
+        >>> sun = ASTERS[0]
+        >>> sun.get_apparent_radius(datetime(2021, 6, 9, tzinfo=timezone.utc))
+        <Angle 00deg 31' 31.6">
+
+        >>> sun.get_apparent_radius(get_timescale().utc(2021, 6, 9))
+        <Angle 00deg 31' 31.6">
+
+        Source of the algorithm: https://rhodesmill.org/skyfield/examples.html#what-is-the-angular-diameter-of-a-planet-given-its-radius
+
+        :param for_date: the date for which the apparent radius has to be returned
+        :return: an object representing a Skyfield angle
+        """
+        if isinstance(for_date, datetime):
+            for_date = get_timescale().from_datetime(for_date)
+
+        ra, dec, distance = (
+            EARTH.skyfield_object.at(for_date)
+            .observe(self.skyfield_object)
+            .apparent()
+            .radec()
         )
+
+        return Angle(radians=numpy.arcsin(self.radius / distance.km) * 2.0)
 
     def serialize(self) -> dict:
         """Serialize the given object
@@ -243,20 +296,45 @@ class AsterEphemerides(Serializable):
         }
 
 
-EARTH = Planet(ObjectIdentifier.EARTH, "EARTH")
+EARTH = Planet(ObjectIdentifier.EARTH, get_skf_objects()["EARTH"])
 
 ASTERS = [
-    Star(ObjectIdentifier.SUN, "SUN", radius=696342),
-    Satellite(ObjectIdentifier.MOON, "MOON", radius=1737.4),
-    Planet(ObjectIdentifier.MERCURY, "MERCURY", radius=2439.7),
-    Planet(ObjectIdentifier.VENUS, "VENUS", radius=6051.8),
-    Planet(ObjectIdentifier.MARS, "MARS", radius=3396.2),
-    Planet(ObjectIdentifier.JUPITER, "JUPITER BARYCENTER", radius=71492),
-    Planet(ObjectIdentifier.SATURN, "SATURN BARYCENTER", radius=60268),
-    Planet(ObjectIdentifier.URANUS, "URANUS BARYCENTER", radius=25559),
-    Planet(ObjectIdentifier.NEPTUNE, "NEPTUNE BARYCENTER", radius=24764),
-    Planet(ObjectIdentifier.PLUTO, "PLUTO BARYCENTER", radius=1185),
+    Star(ObjectIdentifier.SUN, get_skf_objects()["SUN"], radius=696342),
+    Satellite(ObjectIdentifier.MOON, get_skf_objects()["MOON"], radius=1737.4),
+    Planet(ObjectIdentifier.MERCURY, get_skf_objects()["MERCURY"], radius=2439.7),
+    Planet(ObjectIdentifier.VENUS, get_skf_objects()["VENUS"], radius=6051.8),
+    Planet(ObjectIdentifier.MARS, get_skf_objects()["MARS"], radius=3396.2),
+    Planet(
+        ObjectIdentifier.JUPITER, get_skf_objects()["JUPITER BARYCENTER"], radius=71492
+    ),
+    Planet(
+        ObjectIdentifier.SATURN, get_skf_objects()["SATURN BARYCENTER"], radius=60268
+    ),
+    Planet(
+        ObjectIdentifier.URANUS, get_skf_objects()["URANUS BARYCENTER"], radius=25559
+    ),
+    Planet(
+        ObjectIdentifier.NEPTUNE, get_skf_objects()["NEPTUNE BARYCENTER"], radius=24764
+    ),
+    Planet(ObjectIdentifier.PLUTO, get_skf_objects()["PLUTO BARYCENTER"], radius=1185),
 ]
+
+
+def get_aster(identifier: ObjectIdentifier) -> Object:
+    """Return the aster with the given identifier
+
+    >>> get_aster(ObjectIdentifier.SATURN)
+    <Object type=PLANET name=SATURN />
+
+    You can also use it to get the `EARTH` object, even though it has its own constant:
+    <Object type=PLANET name=EARTH />
+    """
+    if identifier == ObjectIdentifier.EARTH:
+        return EARTH
+
+    for aster in ASTERS:
+        if aster.identifier == identifier:
+            return aster
 
 
 class Position:
@@ -267,7 +345,7 @@ class Position:
 
     def get_planet_topos(self) -> Topos:
         if self._topos is None:
-            self._topos = EARTH.get_skyfield_object() + Topos(
+            self._topos = EARTH.skyfield_object + Topos(
                 latitude_degrees=self.latitude, longitude_degrees=self.longitude
             )
 

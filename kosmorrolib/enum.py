@@ -22,14 +22,14 @@ from enum import Enum
 class MoonPhaseType(Enum):
     """An enumeration of moon phases."""
 
-    NEW_MOON = 1
-    WAXING_CRESCENT = 2
-    FIRST_QUARTER = 3
-    WAXING_GIBBOUS = 4
-    FULL_MOON = 5
-    WANING_GIBBOUS = 6
-    LAST_QUARTER = 7
-    WANING_CRESCENT = 8
+    NEW_MOON = 0
+    WAXING_CRESCENT = 1
+    FIRST_QUARTER = 2
+    WAXING_GIBBOUS = 3
+    FULL_MOON = 4
+    WANING_GIBBOUS = 5
+    LAST_QUARTER = 6
+    WANING_CRESCENT = 7
 
 
 class SeasonType(Enum):
