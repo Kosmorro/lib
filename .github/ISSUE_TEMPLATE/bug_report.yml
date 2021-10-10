@@ -1,0 +1,93 @@
+name: Bug report
+description: Report a bug you have found, so it can be fixed
+labels:
+  - bug
+assignees:
+  - deuchnord
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking time to fill out this bug report!
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: I have searched for an opened issue and didn't find my bug
+      description: |
+        Before continuing, please verify that your bug is not already known, i.e.:
+
+        - there is an issue that describe your bug;
+        - the issue is not closed.
+
+        If you have found a closed issue that describes the same bug as yours, please don't comment inside and open a new issue instead.
+        Even though it may look the same, your bug might be totally different :smile:
+
+      options:
+        - label: I confirm I didn't find any issue regarding my bug
+          required: true
+
+  - type: dropdown
+    id: lib-version
+    validations:
+      required: true
+    attributes:
+      label: Version of Kosmorrolib
+      description: |
+        What version of Kosmorrolib are you using?
+
+      options:
+        - "0.11.2"
+        - "0.11.1"
+        - "0.11.0"
+        - "0.10.0"
+        - main branch
+        - features branch
+
+  - type: dropdown
+    id: python-version
+    validations:
+      required: true
+    attributes:
+      label: Version of Python
+      description: |
+        What version of Python are you using?
+        If you don't know, invoke `python --version`.
+
+      options:
+        - "3.10"
+        - "3.9"
+        - "3.8"
+        - "3.7"
+
+  - type: dropdown
+    id: operating-system
+    validations:
+      required: true
+    attributes:
+      label: Operating system
+      description: What operating systems did you use?
+      multiple: true
+
+      options:
+        - Linux
+        - FreeBSD
+        - macOS 12 (Monterey)
+        - macOS 11 (Big Sur)
+        - macOS 10.15 (Catalina)
+        - Windows 11
+        - Windows 10
+
+  - type: textarea
+    id: description
+    validations:
+      required: true
+    attributes:
+      label: Bug description
+      description: |
+        Describe the bug you have encountered:
+
+        - what did you try to do?
+        - what did you expect the program to do?
+        - what happened instead?
