@@ -22,14 +22,16 @@ jobs:
           - '3.7'
           - '3.8'
           - '3.9'
+          - '3.10'
 
     name: Doc tests (Python ${{ matrix.python_version }} on ${{ matrix.os }})
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python
-      uses: actions/setup-python@v1
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python_version }}
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python_version }}
+        architecture: x64
 
     - name: Prepare environment (non-Windows systems)
       if: ${{ matrix.os != 'windows-2019' }}
@@ -42,6 +44,8 @@ jobs:
         python -mpip install --upgrade pip pipenv
 
     - name: Install dependencies (all systems)
+      env:
+        PIP_PREFER_BINARY: 1
       run: |
         pipenv lock --pre
         pipenv sync --dev
@@ -54,12 +58,12 @@ jobs:
         python -mpip install -r requirements.txt
 
     - name: Run doc tests (with coverage)
-      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.python_version == '3.9' }}
+      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.python_version == '3.10' }}
       run: |
         make coverage-doctests
 
     - name: Run doc tests (without coverage)
-      if: ${{ matrix.os != 'ubuntu-20.04' || matrix.python_version != '3.9' }}
+      if: ${{ matrix.os != 'ubuntu-20.04' || matrix.python_version != '3.10' }}
       run: |
         make doctests
 
@@ -67,6 +71,6 @@ jobs:
       env:
         COVERALLS_PRO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.python_version == '3.9' }}
+      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.python_version == '3.10' }}
       run: |
         pipenv run coveralls --service=github
