@@ -42,7 +42,7 @@ setup(
         "python-dateutil",
     ],
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Intended Audience :: Education",
         "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
