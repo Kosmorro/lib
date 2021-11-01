@@ -29,7 +29,7 @@ setup(
     version=__version__,
     author="Jérôme Deuchnord",
     author_email="jerome@deuchnord.fr",
-    url="http://kosmorro.space",
+    url="http://kosmorro.space/lib",
     license="AGPL-v3",
     description="A library to computes the ephemerides.",
     long_description=README,
