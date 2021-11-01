@@ -1,3 +1,12 @@
+# [Version 1.0.1](https://github.com/Kosmorro/lib/compare/v1.0.0...v1.0.1) (2021-11-01)
+
+
+### Bug Fixes
+
+* add missing dependency ([ec255da](https://github.com/Kosmorro/lib/commit/ec255daefdef376b2b43190c7ea2a8e8960cfd99))
+
+
+
 # [Version 1.0.0](https://github.com/Kosmorro/lib/compare/v0.11.2...v1.0.0) (2021-11-01)
 
 
