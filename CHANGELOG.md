@@ -1,3 +1,28 @@
+# [Version 1.0.0](https://github.com/Kosmorro/lib/compare/v0.11.2...v1.0.0) (2021-11-01)
+
+
+### Bug Fixes
+
+* **ephemerides:** fix a bug that made the ephemerides calculations impossible for the Poles ([#21](https://github.com/Kosmorro/lib/issues/21)) ([40988f1](https://github.com/Kosmorro/lib/commit/40988f193fe996cf3f56b6b8071ef7b72ec7fa15))
+
+
+### Features
+
+* add support for Earth perihelion and aphelion ([#30](https://github.com/Kosmorro/lib/issues/30)) ([22a5ee0](https://github.com/Kosmorro/lib/commit/22a5ee0b0394e7c816fee12a40934d959420bef7))
+* add support for Python 3.10 ([#32](https://github.com/Kosmorro/lib/issues/32)) ([6fb8d07](https://github.com/Kosmorro/lib/commit/6fb8d0789f76b6571f3b4364b2f2efbcfb098647))
+* **event:** add support for Earth seasons ([#24](https://github.com/Kosmorro/lib/issues/24)) ([ad96b8b](https://github.com/Kosmorro/lib/commit/ad96b8bebf9676f1d450bd6f337367664a9616ea)), closes [#21](https://github.com/Kosmorro/lib/issues/21) [#25](https://github.com/Kosmorro/lib/issues/25)
+* **event:** add support for lunar eclipses ([#28](https://github.com/Kosmorro/lib/issues/28)) ([f43d604](https://github.com/Kosmorro/lib/commit/f43d6043b057e56de7081093c7470b8b46f632d6))
+* use Skyfield-Data library instead of downloading needed files at first time ([#22](https://github.com/Kosmorro/lib/issues/22)) ([50b9569](https://github.com/Kosmorro/lib/commit/50b9569e5ec4121e9b1dd04dac56929309241851))
+
+
+### BREAKING CHANGES
+
+* Project license is now GNU Affero General Public License (previously it was CeCILL-C)
+* EventType constants `MOON_APOGEE` and `MOON_PERIGEE` have been renamed to `APOGEE` and `PERIGEE`
+* **event:** the `Event.details` field is now a dictionary (was previously a string).
+
+
+
 # [Version 0.11.2](https://github.com/Kosmorro/lib/compare/v0.11.1...v0.11.2) (2021-05-08)
 
 

@@ -17,9 +17,9 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 __title__ = "kosmorrolib"
-__description__ = "A library that computes your ephemerides"
-__url__ = "http://kosmorro.space"
-__version__ = "0.11.2"
+__description__ = "A library to compute your ephemerides"
+__url__ = "http://kosmorro.space/lib"
+__version__ = "1.0.0"
 __author__ = "Jérôme Deuchnord"
 __author_email__ = "jerome@deuchnord.fr"
 __license__ = "AGPL-v3"
