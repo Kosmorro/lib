@@ -38,6 +38,7 @@ setup(
     packages=["kosmorrolib"],
     install_requires=[
         "skyfield>=1.21.0,<2.0.0",
+        "skyfield-data>=3.0.0,<4.0.0",
         "numpy>=1.17.0,<2.0.0",
         "python-dateutil",
     ],
