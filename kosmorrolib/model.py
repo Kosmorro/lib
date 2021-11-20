@@ -25,7 +25,7 @@ import numpy
 from skyfield.api import Topos, Time, Angle
 from skyfield.vectorlib import VectorSum as SkfPlanet
 
-from .core import get_skf_objects, get_timescale
+from .core import get_skf_objects, get_timescale, deprecated
 from .enum import MoonPhaseType, EventType, ObjectIdentifier, ObjectType
 
 
@@ -240,17 +240,27 @@ class Event(Serializable):
             self.details,
         )
 
+    @deprecated(
+        "kosmorrolib.Event.get_description method is deprecated since version 1.1 "
+        "and will be removed in version 2.0. "
+        "It should be reimplemented it in your own code."
+    )
     def get_description(self, show_details: bool = True) -> str:
-        description = self.event_type.value % self._get_objects_name()
-        if show_details and self.details is not None:
-            description += " ({:s})".format(self.details)
+        """Return a textual description for the given details
+
+        *Deprecated* since version 1.1
+        """
+        description = f"Event of type {str(self.event_type)}"
+        if show_details and len(self.details) > 0:
+            details = ""
+            for key in self.details:
+                if details != "":
+                    details += ", "
+                details += f"{key}: {self.details[key]}"
+
+            description += f" ({details})"
+
         return description
-
-    def _get_objects_name(self):
-        if len(self.objects) == 1:
-            return self.objects[0].name
-
-        return tuple(object.name for object in self.objects)
 
     def serialize(self) -> dict:
         return {
