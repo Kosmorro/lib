@@ -16,6 +16,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from warnings import warn
 from skyfield.api import Loader
 from skyfield.timelib import Time
 from skyfield.nutationlib import iau2000b
@@ -48,3 +49,14 @@ def flatten_list(the_list: list):
         new_list.append(item)
 
     return new_list
+
+
+def deprecated(message):
+    def inner(decorated):
+        def f(*args, **kwargs):
+            warn(message, DeprecationWarning, stacklevel=2)
+            return decorated(*args, **kwargs)
+
+        return f
+
+    return inner
