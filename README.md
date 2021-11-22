@@ -18,9 +18,9 @@ Kosmorrolib is available [on PyPI](https://pypi.org/project/kosmorrolib/). To us
 
 ### Development environment
 
-First, install [Pipenv](https://pypi.org/project/pipenv/).
+To contribute to Kosmorrolib, you will need [Poetry](https://python-poetry.org), a software to manage the project from development to publishing.
 
-Clone this repository and run `pipenv sync` to install all the dependencies.
+Clone this repository and run `poetry install` to install the dependencies.
 And that's all, your development environment is ready for the fight! 👏
 
 ## Documentation
