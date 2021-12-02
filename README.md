@@ -1,6 +1,7 @@
 # Kosmorrolib - a library to compute your ephemerides!
 
-[![Coverage Status](https://coveralls.io/repos/github/Kosmorro/lib/badge.svg?branch=main)](https://coveralls.io/github/Kosmorro/lib?branch=main) [![Version on PyPI](https://img.shields.io/pypi/v/kosmorrolib)](https://pypi.org/project/kosmorrolib)  [![IRC: #kosmorro on Libera.Chat](https://img.shields.io/badge/Libera.Chat-%23kosmorro-blueviolet)](https://web.libera.chat/?nick=Astronaut?#kosmorro)
+[![Coverage Status](https://coveralls.io/repos/github/Kosmorro/lib/badge.svg?branch=main)](https://coveralls.io/github/Kosmorro/lib?branch=main) [![Version on PyPI](https://img.shields.io/pypi/v/kosmorrolib)](https://pypi.org/project/kosmorrolib) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKosmorro%2Flib.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FKosmorro%2Flib?ref=badge_shield)
+ [![IRC: #kosmorro on Libera.Chat](https://img.shields.io/badge/Libera.Chat-%23kosmorro-blueviolet)](https://web.libera.chat/?nick=Astronaut?#kosmorro)
 
 ## Installation
 
@@ -26,3 +27,7 @@ And that's all, your development environment is ready for the fight! 👏
 ## Documentation
 
 All the documentation can be found [on the website](https://kosmorro.space/lib/doc).
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKosmorro%2Flib.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FKosmorro%2Flib?ref=badge_large)
