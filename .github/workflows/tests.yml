@@ -5,6 +5,7 @@ on:
     branches: [main, features]
   pull_request:
     branches: [main, features]
+  workflow_dispatch:
 
 jobs:
   doc-tests:
