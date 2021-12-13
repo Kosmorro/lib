@@ -7,3 +7,4 @@ Pipfile.lock
 
 # Gitpod-specific:
 /.vscode/**
+poetry.lock

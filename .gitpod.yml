@@ -8,5 +8,5 @@ vscode:
     - editorconfig.editorconfig
 
 tasks:
-  - before: pip install -U pip pipenv
-    init: pipenv lock --pre && pipenv sync --dev --pre
+  - before: pip install -U pip poetry
+    init: poetry install
