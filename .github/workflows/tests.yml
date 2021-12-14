@@ -5,6 +5,7 @@ on:
     branches: [main, features]
   pull_request:
     branches: [main, features]
+  workflow_dispatch:
 
 jobs:
   doc-tests:
@@ -13,11 +14,9 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-18.04
-          - ubuntu-20.04
-          - macos-10.15
+          - ubuntu-latest
           - macos-11.0
-          - windows-2019
+          - windows-latest
         python_version:
           - '3.7'
           - '3.8'
@@ -33,37 +32,23 @@ jobs:
         python-version: ${{ matrix.python_version }}
         architecture: x64
 
-    - name: Prepare environment (non-Windows systems)
-      if: ${{ matrix.os != 'windows-2019' }}
+    - name: Prepare environment
       run: |
-        pip install --upgrade pip pipenv
+        python3 -m pip install --upgrade pip poetry
 
-    - name: Prepare environment (Windows)
-      if: ${{ matrix.os == 'windows-2019' }}
-      run: |
-        python -mpip install --upgrade pip pipenv
-
-    - name: Install dependencies (all systems)
+    - name: Install dependencies
       env:
         PIP_PREFER_BINARY: 1
       run: |
-        pipenv lock --pre
-        pipenv sync --dev
-        pipenv install --dev
-
-    - name: Install dependencies (Windows)
-      if: ${{ matrix.os == 'windows-2019' }}
-      run: |
-        pipenv lock -r > requirements.txt
-        python -mpip install -r requirements.txt
+        python3 -m poetry install
 
     - name: Run doc tests (with coverage)
-      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.python_version == '3.10' }}
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.python_version == '3.10' }}
       run: |
         make coverage-doctests
 
     - name: Run doc tests (without coverage)
-      if: ${{ matrix.os != 'ubuntu-20.04' || matrix.python_version != '3.10' }}
+      if: ${{ matrix.os != 'ubuntu-latest' || matrix.python_version != '3.10' }}
       run: |
         make doctests
 
@@ -71,6 +56,6 @@ jobs:
       env:
         COVERALLS_PRO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      if: ${{ matrix.os == 'ubuntu-20.04' && matrix.python_version == '3.10' }}
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.python_version == '3.10' }}
       run: |
-        pipenv run coveralls --service=github
+        python3 -m poetry run coveralls --service=github

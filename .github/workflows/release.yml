@@ -1,66 +1,30 @@
 name: Release Application
 
 on:
-    push:
-        tags: ['v*']
+    - release
 
 jobs:
-    release:
-        name: Create release
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v2
-            - name: Setup
-              run: |
-                  sudo apt update
-                  sudo apt install ruby
-                  sudo gem install ronn
-            - name: Prepare release
-              id: prepare_release
-              run: |
-                  changelog="$(git diff $(git describe --abbrev=0 --tags $(git describe --abbrev=0 --tags)^) -- CHANGELOG.md | grep -E '\+[#*]' | sed 's/^+/\n/')"
-                  echo "::set-output name=changelog::$changelog"
-            - name: Create release
-              id: create_release
-              uses: actions/create-release@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  tag_name: ${{ github.ref }}
-                  release_name: Version ${{ github.ref }}
-                  draft: true
-                  prerelease: false
-                  body: |
-                    ${{ steps.prepare_release.outputs.changelog }}
-
-
-    pip:
-        name: Release to PyPI
+    pipy:
+        name: Build and release to PyPI
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v1
             - name: Set up Python
               uses: actions/setup-python@v1
               with:
-                python-version: '3.7'
+                python-version: '3.x'
             - name: Setup environment
               run: |
                 sudo apt update
+                python -m pip install --upgrade pip poetry
                 sudo apt install ruby
                 sudo gem install ronn
-            - name: Install dependencies
+            - name: Build package
               run: |
-                python -m pip install --upgrade pip pipenv twine wheel
-                pipenv lock --pre
-                pipenv sync
-                pipenv run pip freeze > requirements.txt
-                pip install -r requirements.txt
-            - name: Build and publish
+                poetry install
+                poetry build
+            - name: Publish package
               env:
-                TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-                TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+                POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_PASSWORD }}
               run: |
-                make build
-                twine upload dist/*
-
+                poetry publish

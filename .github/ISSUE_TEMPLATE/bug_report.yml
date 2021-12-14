@@ -38,10 +38,8 @@ body:
         What version of Kosmorrolib are you using?
 
       options:
-        - "0.11.2"
-        - "0.11.1"
-        - "0.11.0"
-        - "0.10.0"
+        - "1.0"
+        - "0.11"
         - main branch
         - features branch
 
@@ -86,8 +84,33 @@ body:
     attributes:
       label: Bug description
       description: |
-        Describe the bug you have encountered:
+        Describe in some words the bug you have encountered.
 
-        - what did you try to do?
-        - what did you expect the program to do?
-        - what happened instead?
+  - type: textarea
+    id: reproducer
+    validations:
+      required: true
+    attributes:
+      label: Reproducer
+      description: |
+        Write here a small piece of code that reveals the bug.
+        It should be as concise as possible: no user interaction, no formating, no call to the `kosmorro` command. Just Python.
+        Don't forget to specify a date and position of calculation if they are necessary.
+
+  - type: textarea
+    id: expected
+    validations:
+      required: true
+    attributes:
+      label: Expected result
+      description: |
+        What did you expect your piece of code to do?
+  
+  - type: textarea
+    id: actual
+    validations:
+      required: true
+    attributes:
+      label: Actual result
+      description: |
+        What did your piece of code actually do?
