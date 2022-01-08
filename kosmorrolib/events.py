@@ -153,6 +153,9 @@ def _search_oppositions(start_time: Time, end_time: Time, timezone: int) -> [Eve
 
     >>> _search_oppositions(get_timescale().utc(2021, 3, 20), get_timescale().utc(2021, 3, 21), 0)
     []
+
+    >>> _search_oppositions(get_timescale().utc(2022, 12, 24), get_timescale().utc(2022, 12, 25), 0)
+    []
     """
     earth = get_skf_objects()["earth"]
     sun = get_skf_objects()["sun"]
@@ -187,7 +190,7 @@ def _search_oppositions(start_time: Time, end_time: Time, timezone: int) -> [Eve
 
         times, _ = find_discrete(start_time, end_time, is_oppositing)
         for time in times:
-            if get_angle(time) < 0:
+            if int(get_angle(time)) != 180:
                 # If the angle is negative, then it is actually a false positive.
                 # Just ignoring it.
                 continue
