@@ -25,13 +25,12 @@ Before writing the code, first create a fork of the repository and clone it. You
 
 Then create a new branch and start coding. Finally, commit and push, then open a PR on this project. If your project is not complete, feel free to open it as Draft (if you forgot to activate the Draft status, just edit the first comment to say it), then mark it as ready for review when you're done.
 
-### Choosing the right target branch
+### Choosing the right branch
 
-Whatever you are doing, always base your working branch on `master`.
-When you create your PR, please consider selecting the right target branch:
+When you create your PR, please select the right base and target branch depending on what you are doing:
 
-- If you are fixing a bug or optimizing something, then target the `master` branch.
-- If you are doing anything else, then target the `feature` branch.
+- If you are fixing a bug or optimizing something, target the `main` branch.
+- If you are adding a new feature, target the `features` branch.
 
 This allows to make easier to publish patch releases, which have a higher priority than the minor releases.
 
