@@ -20,7 +20,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.7,<3.11"
 skyfield = "^1.21"
 skyfield-data = "^3.0"
 numpy = "^1.17"
