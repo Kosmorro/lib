@@ -1,5 +1,5 @@
 black:
-	poetry run black kosmorrolib setup.py
+	poetry run black kosmorrolib
 
 .PHONY: tests
 tests: doctests
