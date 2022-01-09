@@ -1,7 +1,9 @@
-name: Release Application
+name: Release library
 
 on:
-    - release
+    release:
+        types: [published]
+
 
 jobs:
     pipy:
