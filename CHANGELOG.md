@@ -1,3 +1,12 @@
+# [Version 1.0.3](https://github.com/Kosmorro/lib/compare/v1.0.2...v1.0.3) (2022-01-09)
+
+
+### Bug Fixes
+
+* fix packaging ([853d3c1](https://github.com/Kosmorro/lib/commit/853d3c12810200a09d6b3fe713fef83447e22add))
+
+
+
 # [Version 1.0.2](https://github.com/Kosmorro/lib/compare/v1.0.1...v1.0.2) (2022-01-09)
 
 
