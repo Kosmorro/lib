@@ -9,7 +9,6 @@ keywords = ["kosmorro", "astronomy", "ephemerides", "ephemeris"]
 license = "AGPL-3.0-or-later"
 description = "A library to computes the ephemerides."
 readme = "README.md"
-include = ["CHANGELOG.md"]
 
 classifiers = [
     "Development Status :: 5 - Production/Stable",
