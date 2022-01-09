@@ -1,3 +1,14 @@
+# [Version 1.0.2](https://github.com/Kosmorro/lib/compare/v1.0.1...v1.0.2) (2022-01-09)
+
+
+### Bug Fixes
+
+* fix Python support for NumPy ([#40](https://github.com/Kosmorro/lib/issues/40)) ([a99ef9d](https://github.com/Kosmorro/lib/commit/a99ef9d6a6b174f653abe2887d8211c809b3a732))
+* make the opposition detection more reliable ([#39](https://github.com/Kosmorro/lib/issues/39)) ([761ec4e](https://github.com/Kosmorro/lib/commit/761ec4ef21b95473829672d69320330f52d1890b))
+* remove NumPy direct dependency ([#41](https://github.com/Kosmorro/lib/issues/41)) ([f0b4267](https://github.com/Kosmorro/lib/commit/f0b42679853d2d8310005cdde2afd1c7674ccaf9))
+
+  Note that Numpy is still a dependency of Skyfield and its dependencies, so NumPy is actually still needed to run Kosmorrolib. But now, it is not used anymore here.
+
 # [Version 1.0.1](https://github.com/Kosmorro/lib/compare/v1.0.0...v1.0.1) (2021-11-01)
 
 

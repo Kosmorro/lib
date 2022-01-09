@@ -19,8 +19,7 @@
 from abc import ABC, abstractmethod
 from typing import Union
 from datetime import datetime, timezone
-
-import numpy
+from math import asin
 
 from skyfield.api import Topos, Time, Angle
 from skyfield.vectorlib import VectorSum as SkfPlanet
@@ -180,7 +179,7 @@ class Object(Serializable):
             .radec()
         )
 
-        return Angle(radians=numpy.arcsin(self.radius / distance.km) * 2.0)
+        return Angle(radians=asin(self.radius / distance.km) * 2.0)
 
     def serialize(self) -> dict:
         """Serialize the given object
