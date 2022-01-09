@@ -23,10 +23,9 @@ from skyfield.timelib import Time
 from skyfield.searchlib import find_discrete, find_maxima, find_minima
 from skyfield.units import Angle
 from skyfield import almanac, eclipselib
-from numpy import pi
+from math import pi
 
 from kosmorrolib.model import (
-    Object,
     Event,
     Object,
     Star,
