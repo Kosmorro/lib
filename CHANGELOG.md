@@ -1,3 +1,12 @@
+# [Version 1.0.4](https://github.com/Kosmorro/lib/compare/v1.0.3...v1.0.4) (2022-01-09)
+
+
+### Bug Fixes
+
+* **Breaking change:** restore `kosmorrolib.__version__` module ([0245394](https://github.com/Kosmorro/lib/commit/02453943ad36829072f339cf9b3695491c8e1f04))
+
+
+
 # [Version 1.0.3](https://github.com/Kosmorro/lib/compare/v1.0.2...v1.0.3) (2022-01-09)
 
 
