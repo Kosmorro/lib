@@ -239,6 +239,16 @@ class Event(Serializable):
             self.details,
         )
 
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, Event)
+            and self.event_type.name == other.event_type.name
+            and self.objects == other.objects
+            and self.start_time == other.start_time
+            and self.end_time == other.end_time
+            and self.details == other.details
+        )
+
     @deprecated(
         "kosmorrolib.Event.get_description method is deprecated since version 1.1 "
         "and will be removed in version 2.0. "
