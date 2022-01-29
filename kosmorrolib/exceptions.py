@@ -30,3 +30,16 @@ class OutOfRangeDateError(ValueError):
         )
         self.min_date = min_date
         self.max_date = max_date
+
+
+class InvalidDateRangeError(ValueError):
+    def __init__(self, start_date: date, end_date: date):
+        super().__init__(
+            "The start date (%s) must be before the end date (%s)"
+            % (
+                start_date.strftime("%Y-%m-%d"),
+                end_date.strftime("%Y-%m-%d"),
+            )
+        )
+        self.start_date = start_date
+        self.end_date = end_date
