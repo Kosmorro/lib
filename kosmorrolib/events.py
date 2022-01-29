@@ -36,7 +36,7 @@ from kosmorrolib.model import (
 )
 from kosmorrolib.dateutil import translate_to_timezone
 from kosmorrolib.enum import EventType, ObjectIdentifier, SeasonType, LunarEclipseType
-from kosmorrolib.exceptions import OutOfRangeDateError
+from kosmorrolib.exceptions import InvalidDateRangeError, OutOfRangeDateError
 from kosmorrolib.core import get_timescale, get_skf_objects, flatten_list
 
 
@@ -516,6 +516,114 @@ def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
             _search_lunar_eclipse,
         ]:
             found_events.append(fun(start_time, end_time, timezone))
+
+        return sorted(flatten_list(found_events), key=lambda event: event.start_time)
+    except EphemerisRangeError as error:
+        start_date = translate_to_timezone(error.start_time.utc_datetime(), timezone)
+        end_date = translate_to_timezone(error.end_time.utc_datetime(), timezone)
+
+        start_date = date(start_date.year, start_date.month, start_date.day)
+        end_date = date(end_date.year, end_date.month, end_date.day)
+
+        raise OutOfRangeDateError(start_date, end_date) from error
+
+
+def search_events(
+    event_types: [EventType], end: date, start: date = date.today(), timezone: int = 0
+) -> [Event]:
+    """Search between `start` and `end` dates, and return a list of matching events for the given time range, adjusted to a given timezone.
+
+    Find all events between January 27th, 2020 and January 29th, 2020:
+
+    >>> event_types = [EventType.OPPOSITION, EventType.CONJUNCTION, EventType.OCCULTATION, EventType.MAXIMAL_ELONGATION, EventType.APOGEE, EventType.PERIGEE, EventType.SEASON_CHANGE, EventType.LUNAR_ECLIPSE]
+    >>> search_events(event_types, end=date(2020, 1, 29), start=date(2020, 1, 27)) # doctest: +NORMALIZE_WHITESPACE
+    [<Event type=CONJUNCTION objects=[<Object type=PLANET name=VENUS />, <Object type=PLANET name=NEPTUNE />] start=2020-01-27 20:00:23.242428+00:00 end=None details=None />,
+    <Event type=CONJUNCTION objects=[<Object type=SATELLITE name=MOON />, <Object type=PLANET name=NEPTUNE />] start=2020-01-28 09:33:45.000618+00:00 end=None details=None />,
+    <Event type=CONJUNCTION objects=[<Object type=SATELLITE name=MOON />, <Object type=PLANET name=VENUS />] start=2020-01-28 11:01:51.909499+00:00 end=None details=None />,
+    <Event type=APOGEE objects=[<Object type=SATELLITE name=MOON />] start=2020-01-29 21:32:13.884314+00:00 end=None details={'distance_km': 405426.4150890029} />]
+
+    Find Apogee events between January 27th, 2020 and January 29th, 2020:
+
+    >>> search_events([EventType.APOGEE], end=date(2020, 1, 29), start=date(2020, 1, 27))
+    [<Event type=APOGEE objects=[<Object type=SATELLITE name=MOON />] start=2020-01-29 21:32:13.884314+00:00 end=None details={'distance_km': 405426.4150890029} />]
+
+    Find Apogee events between January 27th, 2020 and January 29th, 2020 (show times in UTC-6):
+
+    >>> search_events([EventType.APOGEE], end=date(2020, 1, 29), start=date(2020, 1, 27), timezone=-6)
+    [<Event type=APOGEE objects=[<Object type=SATELLITE name=MOON />] start=2020-01-29 15:32:13.884314-06:00 end=None details={'distance_km': 405426.4150890029} />]
+
+    If no events occurred in the given time range, an empty list is returned.
+
+    >>> event_types = [EventType.OPPOSITION, EventType.CONJUNCTION, EventType.SEASON_CHANGE, EventType.LUNAR_ECLIPSE]
+    >>> search_events(event_types, end=date(2021, 5, 15), start=date(2021, 5, 14))
+    []
+
+    Note that the events can only be found for a date range.
+    Asking for the events with an out of range date will result in an exception:
+
+    >>> event_types = [EventType.OPPOSITION, EventType.CONJUNCTION]
+    >>> search_events(event_types, end=date(1000, 1, 2), start=date(1000, 1, 1))
+    Traceback (most recent call last):
+        ...
+    kosmorrolib.exceptions.OutOfRangeDateError: The date must be between 1899-07-28 and 2053-10-08
+
+    If the start date does not occur before the end date, an exception will be thrown
+
+    >>> event_types = [EventType.OPPOSITION, EventType.CONJUNCTION]
+    >>> search_events(event_types, end=date(2021, 1, 26), start=date(2021, 1, 28))
+    Traceback (most recent call last):
+        ...
+    kosmorrolib.exceptions.InvalidDateRangeError: The start date (2021-01-28) must be before the end date (2021-01-26)
+
+    If the start and end dates are the same, then events for that one day will be returned.
+
+    >>> event_types = [EventType.OPPOSITION, EventType.CONJUNCTION]
+    >>> search_events(event_types, end=date(2021, 1, 28), start=date(2021, 1, 28))
+    [<Event type=CONJUNCTION objects=[<Object type=PLANET name=VENUS />, <Object type=PLANET name=PLUTO />] start=2021-01-28 16:18:05.483029+00:00 end=None details=None />]
+    """
+
+    moon = ASTERS[1]
+    sun = ASTERS[0]
+
+    def search_all_apogee_events(start: date, end: date, timezone: int = 0) -> [Event]:
+        moon_apogee_events = _search_apogee(moon)(start, end, timezone)
+        earth_apogee_events = _search_apogee(EARTH, from_aster=sun)(
+            start, end, timezone
+        )
+        return moon_apogee_events + earth_apogee_events
+
+    def search_all_perigee_events(start: date, end: date, timezone: int = 0) -> [Event]:
+        moon_perigee_events = _search_perigee(moon)(start, end, timezone)
+        earth_perigee_events = _search_perigee(EARTH, from_aster=sun)(
+            start, end, timezone
+        )
+        return moon_perigee_events + earth_perigee_events
+
+    search_funcs = {
+        EventType.OPPOSITION: _search_oppositions,
+        EventType.CONJUNCTION: _search_conjunctions_occultations,
+        EventType.OCCULTATION: _search_conjunctions_occultations,
+        EventType.MAXIMAL_ELONGATION: _search_maximal_elongations,
+        EventType.APOGEE: search_all_apogee_events,
+        EventType.PERIGEE: search_all_perigee_events,
+        EventType.SEASON_CHANGE: _search_earth_season_change,
+        EventType.LUNAR_ECLIPSE: _search_lunar_eclipse,
+    }
+
+    if start > end:
+        raise InvalidDateRangeError(start, end)
+
+    start_time = get_timescale().utc(start.year, start.month, start.day, -timezone)
+    end_time = get_timescale().utc(end.year, end.month, end.day + 1, -timezone)
+
+    try:
+        found_events = []
+        for event_type in event_types:
+            fun = search_funcs[event_type]
+            events = fun(start_time, end_time, timezone)
+            for event in events:
+                if event not in found_events:
+                    found_events.append(event)
 
         return sorted(flatten_list(found_events), key=lambda event: event.start_time)
     except EphemerisRangeError as error:
