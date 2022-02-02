@@ -16,6 +16,22 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from core import alert_deprecation
+from sys import version_info
+
+python_version = (version_info.major, version_info.minor)
+msg_python = (
+    '\nOn Python 3.7, you can also use the "importlib-metadata" package.'
+    if python_version == (3, 7)
+    else ""
+)
+
+alert_deprecation(
+    'Module "kosmorrolib.__version__" is deprecated since version 1.1. '
+    "Use the importlib.metadata module provided by Python 3.8+: "
+    "https://docs.python.org/3/library/importlib.metadata.html." + msg_python
+)
+
 __title__ = "kosmorrolib"
 __description__ = "A library to compute your ephemerides"
 __url__ = "http://kosmorro.space/lib"
