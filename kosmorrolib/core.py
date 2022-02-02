@@ -51,10 +51,19 @@ def flatten_list(the_list: list):
     return new_list
 
 
+def alert_deprecation(message):
+    """Show the given message as a deprecation warning.
+
+    >>> alert_deprecation("This is deprecated.")
+    sys:1: DeprecationWarning: This is deprecated.
+    """
+    warn(message, DeprecationWarning, stacklevel=2)
+
+
 def deprecated(message):
     def inner(decorated):
         def f(*args, **kwargs):
-            warn(message, DeprecationWarning, stacklevel=2)
+            alert_deprecation(message)
             return decorated(*args, **kwargs)
 
         return f
