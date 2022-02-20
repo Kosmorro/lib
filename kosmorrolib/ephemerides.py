@@ -222,29 +222,21 @@ def get_ephemerides(
 
     try:
         for aster in ASTERS:
-            rise_times, arr = find_discrete(start_time, end_time, is_risen(aster))
-
-            culmination_time, _ = find_maxima(
-                start_time,
-                end_time,
-                f=get_angle(aster),
-                epsilon=1.0 / 3600 / 24,
-                num=12,
-            )
-
-            if len(culmination_time) == 1:
-                culmination_time = culmination_time[0]
-            else:
-                culmination_time = None
+            times, risen_info = find_discrete(start_time, end_time, is_risen(aster))
+            culmination_time, _ = find_maxima(start_time, end_time, get_angle(aster))
 
             rise_time, set_time = None, None
+            culmination_time = (
+                culmination_time[0] if len(culmination_time) == 1 else None
+            )
 
-            if len(rise_times) == 2:
-                rise_time = rise_times[0 if arr[0] else 1]
-                set_time = rise_times[1 if not arr[1] else 0]
-            elif len(rise_times) == 1:
-                rise_time = rise_times[0] if arr[0] else None
-                set_time = rise_times[0] if not arr[0] else None
+            if len(times) > 0:
+                rise_time = times[0] if risen_info[0] else None
+                set_time = times[0] if not risen_info[0] else None
+
+                if len(times) == 2:
+                    rise_time = times[0 if risen_info[0] else 1]
+                    set_time = times[1 if not risen_info[1] else 0]
 
             # Convert the Time instances to Python datetime objects
             if rise_time is not None:
