@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import doctest
+from doctest import testmod, NORMALIZE_WHITESPACE
 
 from kosmorrolib import *
 
@@ -10,7 +10,7 @@ if __name__ == "__main__":
     tests = 0
 
     for module in [events, ephemerides, model]:
-        (f, t) = doctest.testmod(module)
+        (f, t) = testmod(module, optionflags=NORMALIZE_WHITESPACE)
         failures += f
         tests += t
 
