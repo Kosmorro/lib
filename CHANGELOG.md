@@ -1,3 +1,13 @@
+# [Version 1.0.5](https://github.com/Kosmorro/lib/compare/v1.0.4...v1.0.5) (2022-02-21)
+
+
+### Bug Fixes
+
+* **ephemerides:** fix the rise, culmination and set times being too often `None` ([bbf1b9f](https://github.com/Kosmorro/lib/commit/bbf1b9f53efb8c906e597c9054f90e674d1b7dd9))
+* fix the warning message from `skyfield-data` package about expired data ([f3d39ad](https://github.com/Kosmorro/lib/commit/f3d39ad5bf1d66fcebb4864064111d2f0af87c63))
+
+
+
 # [Version 1.0.4](https://github.com/Kosmorro/lib/compare/v1.0.3...v1.0.4) (2022-01-09)
 
 
