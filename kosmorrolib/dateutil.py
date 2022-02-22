@@ -56,7 +56,9 @@ def normalize_datetime(date: datetime) -> datetime:
     datetime.datetime(2022, 1, 1, 0, 0)
     """
 
-    new_date = datetime(date.year, date.month, date.day, date.hour, date.minute)
+    new_date = datetime(
+        date.year, date.month, date.day, date.hour, date.minute
+    ).replace(microsecond=0)
 
     if date.second >= 30:
         new_date += timedelta(minutes=1)
