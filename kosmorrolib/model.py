@@ -252,6 +252,12 @@ class Event(Serializable):
         return tuple(object.name for object in self.objects)
 
     def serialize(self) -> dict:
+        if self.details is not None:
+            for key, value in self.details.items():
+                if str(type(value)).startswith("<enum"):
+                    self.details[key] = value.name
+                elif str(type(value)) == "<class 'datetime.datetime'>":
+                    self.details[key] = value.isoformat()
         return {
             "objects": [object.serialize() for object in self.objects],
             "EventType": self.event_type.name,
