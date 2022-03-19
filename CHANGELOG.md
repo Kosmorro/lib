@@ -1,3 +1,12 @@
+# [Version 1.0.6](https://github.com/Kosmorro/lib/compare/v1.0.5...v1.0.6) (2022-03-19)
+
+
+### Bug Fixes
+
+* prevent `get_ephemerides()` from returning values out of the dates given in arguments ([1cf40f5](https://github.com/Kosmorro/lib/commit/1cf40f5b40991b6dc567f979f6bd69fc63807e4e))
+
+
+
 # [Version 1.0.5](https://github.com/Kosmorro/lib/compare/v1.0.4...v1.0.5) (2022-02-21)
 
 
