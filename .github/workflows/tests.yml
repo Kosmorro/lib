@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  doc-tests:
+  tests:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -42,20 +42,37 @@ jobs:
       run: |
         python3 -m poetry install
 
-    - name: Run doc tests (with coverage)
-      if: ${{ matrix.os == 'ubuntu-latest' && matrix.python_version == '3.10' }}
+    - name: Run doc tests
       run: |
         make coverage-doctests
 
-    - name: Run doc tests (without coverage)
-      if: ${{ matrix.os != 'ubuntu-latest' || matrix.python_version != '3.10' }}
-      run: |
-        make doctests
-
     - name: Push code coverage
       env:
-        COVERALLS_PRO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      if: ${{ matrix.os == 'ubuntu-latest' && matrix.python_version == '3.10' }}
+        COVERALLS_PARALLEL: true
+        COVERALLS_FLAG_NAME: "Py${{ matrix.python_version }}_${{ matrix.os }}"
       run: |
         python3 -m poetry run coveralls --service=github
+
+  coverage:
+    name: Push coverage report
+    needs: tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Prepare Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: |
+          pip install -U pip poetry
+          poetry install
+
+      - name: Upload coverage report
+        run: |
+          poetry run coveralls --finish --service=github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
