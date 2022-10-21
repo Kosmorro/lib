@@ -139,7 +139,7 @@ def get_ephemerides(
     >>> get_ephemerides(Position(36.6794, 4.8555), date(2022, 7, 7))
     [<AsterEphemerides rise_time=2022-07-07 04:29:00 culmination_time=2022-07-07 11:46:00 set_time=2022-07-07 19:02:00 aster=<Object type=STAR name=SUN />>,
     <AsterEphemerides rise_time=2022-07-07 12:16:00 culmination_time=2022-07-07 18:06:00 set_time=2022-07-07 23:54:00 aster=<Object type=SATELLITE name=MOON />>,
-    <AsterEphemerides rise_time=2022-07-07 03:36:00 culmination_time=2022-07-07 10:58:00 set_time=2022-07-07 18:21:00 aster=<Object type=PLANET name=MERCURY />>,
+    <AsterEphemerides rise_time=2022-07-07 03:36:00 culmination_time=2022-07-07 10:58:00 set_time=2022-07-07 18:20:00 aster=<Object type=PLANET name=MERCURY />>,
     <AsterEphemerides rise_time=2022-07-07 02:30:00 culmination_time=2022-07-07 09:44:00 set_time=2022-07-07 16:58:00 aster=<Object type=PLANET name=VENUS />>,
     <AsterEphemerides rise_time=2022-07-07 00:05:00 culmination_time=2022-07-07 06:39:00 set_time=2022-07-07 13:14:00 aster=<Object type=PLANET name=MARS />>,
     <AsterEphemerides rise_time=2022-07-07 22:59:00 culmination_time=2022-07-07 05:11:00 set_time=2022-07-07 11:20:00 aster=<Object type=PLANET name=JUPITER />>,
@@ -153,7 +153,7 @@ def get_ephemerides(
     >>> get_ephemerides(Position(36.6794, 4.8555), date(2022, 7, 7), timezone=2)
     [<AsterEphemerides rise_time=2022-07-07 06:29:00 culmination_time=2022-07-07 13:46:00 set_time=2022-07-07 21:02:00 aster=<Object type=STAR name=SUN />>,
     <AsterEphemerides rise_time=2022-07-07 14:16:00 culmination_time=2022-07-07 20:06:00 set_time=2022-07-07 01:27:00 aster=<Object type=SATELLITE name=MOON />>,
-    <AsterEphemerides rise_time=2022-07-07 05:36:00 culmination_time=2022-07-07 12:58:00 set_time=2022-07-07 20:21:00 aster=<Object type=PLANET name=MERCURY />>,
+    <AsterEphemerides rise_time=2022-07-07 05:36:00 culmination_time=2022-07-07 12:58:00 set_time=2022-07-07 20:20:00 aster=<Object type=PLANET name=MERCURY />>,
     <AsterEphemerides rise_time=2022-07-07 04:30:00 culmination_time=2022-07-07 11:44:00 set_time=2022-07-07 18:58:00 aster=<Object type=PLANET name=VENUS />>,
     <AsterEphemerides rise_time=2022-07-07 02:05:00 culmination_time=2022-07-07 08:39:00 set_time=2022-07-07 15:14:00 aster=<Object type=PLANET name=MARS />>,
     <AsterEphemerides rise_time=2022-07-07 01:02:00 culmination_time=2022-07-07 07:11:00 set_time=2022-07-07 13:20:00 aster=<Object type=PLANET name=JUPITER />>,
