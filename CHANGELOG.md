@@ -1,3 +1,17 @@
+# [Version 1.0.7](https://github.com/Kosmorro/lib/compare/v1.0.6...v1.0.7) (2022-11-11)
+
+
+### Build System
+
+* add support for Python 3.11 ([#58](https://github.com/Kosmorro/lib/issues/58)) ([807be7d](https://github.com/Kosmorro/lib/commit/807be7def324c1accdad6dc35738624589eb7b06))
+
+
+### BREAKING CHANGES
+
+* Python 3.7 is not supported anymore.
+
+
+
 # [Version 1.0.6](https://github.com/Kosmorro/lib/compare/v1.0.5...v1.0.6) (2022-03-19)
 
 

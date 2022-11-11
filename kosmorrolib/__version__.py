@@ -19,7 +19,7 @@
 __title__ = "kosmorrolib"
 __description__ = "A library to compute your ephemerides"
 __url__ = "http://kosmorro.space/lib"
-__version__ = "1.0.6"
+__version__ = "1.0.7"
 __author__ = "Jérôme Deuchnord"
 __author_email__ = "jerome@deuchnord.fr"
 __license__ = "AGPL-v3"
