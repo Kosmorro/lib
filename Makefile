@@ -16,4 +16,3 @@ doctests:
 changelog:
 	conventional-changelog -p angular -i CHANGELOG.md -s
 	@echo -e "\e[32m✔\e[33m Changelog generated. Don't forget to update the version number before committing.\e[0m"
-	@echo -e "  When everything is good, finish the release with 'make tag'."
