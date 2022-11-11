@@ -10,7 +10,7 @@
 
 Kosmorrolib requires the following software to work:
 
-- Python ≥ 3.7.0
+- Python ≥ 3.8.0
 
 And that's all!
 
