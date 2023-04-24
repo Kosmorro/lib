@@ -1,4 +1,4 @@
-name: Code style
+name: Pull Request Checks
 
 on:
   push:
@@ -7,13 +7,26 @@ on:
     branches: [main, features]
 
 jobs:
-  lint:
+  semantic-pr:
+    name: Semantic Pull Request
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
 
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  lint:
     name: Code Style
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
       with:
-        python-version: 3.9
+        python-version: 3.x
     - uses: psf/black@20.8b1
