@@ -41,6 +41,7 @@ jobs:
         PIP_PREFER_BINARY: 1
       run: |
         python3 -m poetry install
+        python3 -m poetry show virtualenv
 
     - name: Run doc tests
       run: |
