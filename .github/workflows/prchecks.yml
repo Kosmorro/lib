@@ -1,8 +1,6 @@
 name: Pull Request Checks
 
 on:
-  push:
-    branches: [main, features]
   pull_request:
     branches: [main, features]
 
