@@ -21,7 +21,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
 skyfield = "^1.21"
-skyfield-data = ">=3,<5"
+skyfield-data = ">=3,<6"
 python-dateutil = "^2.8"
 
 [tool.poetry.dev-dependencies]
