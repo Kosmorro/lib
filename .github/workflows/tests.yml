@@ -1,4 +1,4 @@
-name: Unit Tests
+name: Tests
 
 on:
   push:
@@ -40,8 +40,7 @@ jobs:
       env:
         PIP_PREFER_BINARY: 1
       run: |
-        python3 -m poetry install
-        python3 -m poetry show virtualenv
+        python3 -m poetry install --with=dev
 
     - name: Run doc tests
       run: |
