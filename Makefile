@@ -14,5 +14,6 @@ doctests:
 	python3 -m poetry run python tests.py
 
 changelog:
-	conventional-changelog -p angular -i CHANGELOG.md -s
-	@echo -e "\e[32m✔\e[33m Changelog generated. Don't forget to update the version number before committing.\e[0m"
+	npm install conventional-changelog-cli
+	./node_modules/.bin/conventional-changelog -p angular -i CHANGELOG.md -s
+	rm -rf node_modules package.json package-lock.json

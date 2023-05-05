@@ -8,3 +8,8 @@ Pipfile.lock
 # Gitpod-specific:
 /.vscode/**
 poetry.lock
+
+# Used to generate changelog, should not be in the repo:
+/package.json
+/package-lock.json
+/node_modules
