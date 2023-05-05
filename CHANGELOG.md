@@ -1,3 +1,12 @@
+# [Version 1.0.8](https://github.com/Kosmorro/lib/compare/v1.0.7...v1.0.8) (2023-05-05)
+
+
+### Bug Fixes
+
+* **deps:** update skyfield-data requirement from >=3,<5 to >=3,<6 ([#62](https://github.com/Kosmorro/lib/issues/62)) ([a2aa56c](https://github.com/Kosmorro/lib/commit/a2aa56c36b37c1937d6ed04480aec98ed95df739))
+
+
+
 # [Version 1.0.7](https://github.com/Kosmorro/lib/compare/v1.0.6...v1.0.7) (2022-11-11)
 
 
