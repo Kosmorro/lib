@@ -1,3 +1,12 @@
+# [Version 1.0.9](https://github.com/Kosmorro/lib/compare/v1.0.8...v1.0.9) (2023-08-19)
+
+
+### Bug Fixes
+
+* fix compatibility with the last versions of NumPy ([#65](https://github.com/Kosmorro/lib/issues/65)) ([e43319b](https://github.com/Kosmorro/lib/commit/e43319bd6dc7f370eecfa923a126f09b740939d2))
+
+
+
 # [Version 1.0.8](https://github.com/Kosmorro/lib/compare/v1.0.7...v1.0.8) (2023-05-05)
 
 
