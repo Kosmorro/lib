@@ -25,7 +25,7 @@ jobs:
 
     name: Python ${{ matrix.python_version }} (${{ matrix.os }})
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python_version }}
       uses: actions/setup-python@v4
       with:
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Prepare Python
         uses: actions/setup-python@v4
         with:
