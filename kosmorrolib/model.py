@@ -283,15 +283,17 @@ class AsterEphemerides(Serializable):
     def serialize(self) -> dict:
         return {
             "object": self.object.serialize(),
-            "rise_time": self.rise_time.isoformat()
-            if self.rise_time is not None
-            else None,
-            "culmination_time": self.culmination_time.isoformat()
-            if self.culmination_time is not None
-            else None,
-            "set_time": self.set_time.isoformat()
-            if self.set_time is not None
-            else None,
+            "rise_time": (
+                self.rise_time.isoformat() if self.rise_time is not None else None
+            ),
+            "culmination_time": (
+                self.culmination_time.isoformat()
+                if self.culmination_time is not None
+                else None
+            ),
+            "set_time": (
+                self.set_time.isoformat() if self.set_time is not None else None
+            ),
         }
 
 
