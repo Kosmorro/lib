@@ -1,3 +1,12 @@
+# [Version 1.0.11](https://github.com/Kosmorro/lib/compare/v1.0.10...v1.0.11) (2024-08-03)
+
+
+### Bug Fixes
+
+* **dependencies:** force using Numpy 2.0 ([#73](https://github.com/Kosmorro/lib/issues/73)) ([9332a38](https://github.com/Kosmorro/lib/commit/9332a38c604a2ed73f2cf04bd1e12ed63fbc9b2b))
+
+
+
 # [Version 1.0.10](https://github.com/Kosmorro/lib/compare/v1.0.9...v1.0.10) (2023-11-11)
 
 
