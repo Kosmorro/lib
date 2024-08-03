@@ -250,7 +250,7 @@ def _search_maximal_elongations(
                     EventType.MAXIMAL_ELONGATION,
                     [planet],
                     translate_to_timezone(time.utc_datetime(), timezone),
-                    details={"deg": elongation},
+                    details={"deg": float(elongation)},
                 )
             )
 
@@ -299,7 +299,7 @@ def _search_apogee(to_aster: Object, from_aster: Object = EARTH) -> callable:
                     EventType.APOGEE,
                     [to_aster],
                     translate_to_timezone(time.utc_datetime(), timezone),
-                    details={"distance_km": distances[i]},
+                    details={"distance_km": float(distances[i])},
                 )
             )
 
@@ -338,7 +338,7 @@ def _search_perigee(aster: Object, from_aster: Object = EARTH) -> callable:
                     EventType.PERIGEE,
                     [aster],
                     translate_to_timezone(time.utc_datetime(), timezone),
-                    details={"distance_km": distances[i]},
+                    details={"distance_km": float(distances[i])},
                 )
             )
 
