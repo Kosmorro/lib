@@ -15,7 +15,7 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - macos-11.0
+          - macos-latest
           - windows-latest
         python_version:
           - '3.8'
@@ -31,7 +31,6 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python_version }}
-        architecture: x64
 
     - name: Prepare environment
       run: |
