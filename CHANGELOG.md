@@ -1,3 +1,10 @@
+# [Version 1.0.12](https://github.com/Kosmorro/lib/compare/v1.0.11...v) (2025-03-16)
+
+### Bug Fixes
+
+* fix support for Python 3.13 ([#74](https://github.com/Kosmorro/lib/issues/74)) ([240d567](https://github.com/Kosmorro/lib/commit/240d567940c78781ab3010ad5011dd0ac030accb))
+
+
 # [Version 1.0.11](https://github.com/Kosmorro/lib/compare/v1.0.10...v1.0.11) (2024-08-03)
 
 
