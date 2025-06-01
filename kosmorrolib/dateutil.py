@@ -19,18 +19,18 @@
 from datetime import datetime, timezone, timedelta
 
 
-def translate_to_timezone(date: datetime, to_tz: int):
-    """Convert a datetime from a timezone to another.
+def translate_to_utc_offset(date: datetime, to_tz: int):
+    """Convert a datetime from a UTC offset to another.
 
-    >>> translate_to_timezone(datetime(2021, 6, 9, 5, 0, 0, tzinfo=timezone.utc), 2)
+    >>> translate_to_utc_offset(datetime(2021, 6, 9, 5, 0, 0, tzinfo=timezone.utc), 2)
     datetime.datetime(2021, 6, 9, 7, 0, tzinfo=datetime.timezone(datetime.timedelta(seconds=7200)))
 
-    >>> translate_to_timezone(datetime(2021, 6, 9, 5, 0, 0, tzinfo=timezone(timedelta(hours=1))), 2)
+    >>> translate_to_utc_offset(datetime(2021, 6, 9, 5, 0, 0, tzinfo=timezone(timedelta(hours=1))), 2)
     datetime.datetime(2021, 6, 9, 6, 0, tzinfo=datetime.timezone(datetime.timedelta(seconds=7200)))
 
     If the datetime has no timezone information, then it is interpreted as UTC:
 
-    >>> translate_to_timezone(datetime(2021, 6, 9, 5, 0, 0), 2)
+    >>> translate_to_utc_offset(datetime(2021, 6, 9, 5, 0, 0), 2)
     datetime.datetime(2021, 6, 9, 7, 0, tzinfo=datetime.timezone(datetime.timedelta(seconds=7200)))
     """
     source_tz = date.tzinfo if date.tzinfo is not None else timezone.utc
