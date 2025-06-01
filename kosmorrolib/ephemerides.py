@@ -25,8 +25,14 @@ from skyfield.constants import tau
 from skyfield.errors import EphemerisRangeError
 
 from .model import Position, AsterEphemerides, MoonPhase, Object, ASTERS
-from .dateutil import translate_to_timezone, normalize_datetime
-from .core import get_skf_objects, get_timescale, get_iau2000b
+from .dateutil import translate_to_utc_offset, normalize_datetime
+from .core import (
+    get_skf_objects,
+    get_timescale,
+    get_iau2000b,
+    deprecated,
+    alert_deprecation,
+)
 from .enum import MoonPhaseType
 from .exceptions import OutOfRangeDateError
 
@@ -34,7 +40,7 @@ RISEN_ANGLE = -0.8333
 
 
 def _get_skyfield_to_moon_phase(
-    times: [Time], vals: [int], now: Time, timezone: int
+    times: [Time], vals: [int], now: Time, utc_offset: Union[int, float]
 ) -> Union[MoonPhase, None]:
     tomorrow = get_timescale().utc(
         now.utc_datetime().year, now.utc_datetime().month, now.utc_datetime().day + 1
@@ -58,21 +64,27 @@ def _get_skyfield_to_moon_phase(
         MoonPhaseType.FULL_MOON,
         MoonPhaseType.LAST_QUARTER,
     ]:
-        current_phase_time = translate_to_timezone(times[i].utc_datetime(), timezone)
+        current_phase_time = translate_to_utc_offset(
+            times[i].utc_datetime(), utc_offset
+        )
     else:
         current_phase_time = None
 
     # Find the next moon phase
     for j in range(i + 1, len(times)):
         if vals[j] in [0, 2, 4, 6]:
-            next_phase_time = translate_to_timezone(times[j].utc_datetime(), timezone)
+            next_phase_time = translate_to_utc_offset(
+                times[j].utc_datetime(), utc_offset
+            )
             break
 
     return MoonPhase(current_phase, current_phase_time, next_phase_time)
 
 
-def get_moon_phase(for_date: date = date.today(), timezone: int = 0) -> MoonPhase:
-    """Calculate and return the moon phase for the given date, adjusted to the given timezone if any.
+def get_moon_phase(
+    for_date: date = date.today(), utc_offset: Union[int, float] = 0, **argv
+) -> MoonPhase:
+    """Calculate and return the moon phase for the given date, adjusted to the given UTC offset if any.
 
     Get the moon phase for the 27 March, 2021:
 
@@ -85,7 +97,12 @@ def get_moon_phase(for_date: date = date.today(), timezone: int = 0) -> MoonPhas
     >>> get_moon_phase(datetime(2021, 3, 28))
     <MoonPhase phase_type=MoonPhaseType.FULL_MOON time=2021-03-28 18:48:10.902298+00:00 next_phase_date=2021-04-04 10:02:27.393689+00:00>
 
-    Get the moon phase for the 27 March, 2021, in the UTC+2 timezone:
+    Get the moon phase for the 27 March, 2021, in UTC+2:
+
+    >>> get_moon_phase(date(2021, 3, 27), utc_offset=2)
+    <MoonPhase phase_type=MoonPhaseType.WAXING_GIBBOUS time=None next_phase_date=2021-03-28 20:48:10.902298+02:00>
+
+    Note that the `utc_offset` argument was named `timezone` before version 1.1. The old name still works, but will be dropped in the future.
 
     >>> get_moon_phase(date(2021, 3, 27), timezone=2)
     <MoonPhase phase_type=MoonPhaseType.WAXING_GIBBOUS time=None next_phase_date=2021-03-28 20:48:10.902298+02:00>
@@ -98,6 +115,13 @@ def get_moon_phase(for_date: date = date.today(), timezone: int = 0) -> MoonPhas
         ...
     kosmorrolib.exceptions.OutOfRangeDateError: The date must be between 1899-08-09 and 2053-09-26
     """
+
+    if argv.get("timezone") is not None:
+        alert_deprecation(
+            "'timezone' argument of the get_moon_phase() function is deprecated. Use utc_offset instead."
+        )
+        utc_offset = argv.get("timezone")
+
     earth = get_skf_objects()["earth"]
     moon = get_skf_objects()["moon"]
     sun = get_skf_objects()["sun"]
@@ -117,11 +141,11 @@ def get_moon_phase(for_date: date = date.today(), timezone: int = 0) -> MoonPhas
 
     try:
         times, phases = find_discrete(start_time, end_time, moon_phase_at)
-        return _get_skyfield_to_moon_phase(times, phases, today, timezone)
+        return _get_skyfield_to_moon_phase(times, phases, today, utc_offset)
 
     except EphemerisRangeError as error:
-        start = translate_to_timezone(error.start_time.utc_datetime(), timezone)
-        end = translate_to_timezone(error.end_time.utc_datetime(), timezone)
+        start = translate_to_utc_offset(error.start_time.utc_datetime(), utc_offset)
+        end = translate_to_utc_offset(error.end_time.utc_datetime(), utc_offset)
 
         start = date(start.year, start.month, start.day) + timedelta(days=12)
         end = date(end.year, end.month, end.day) - timedelta(days=12)
@@ -130,9 +154,12 @@ def get_moon_phase(for_date: date = date.today(), timezone: int = 0) -> MoonPhas
 
 
 def get_ephemerides(
-    position: Position, for_date: date = date.today(), timezone: int = 0
+    position: Position,
+    for_date: date = date.today(),
+    utc_offset: Union[int, float] = 0,
+    **argv
 ) -> [AsterEphemerides]:
-    """Compute and return the ephemerides for the given position and date, adjusted to the given timezone if any.
+    """Compute and return the ephemerides for the given position and date, adjusted to the given UTC offset if any.
 
     Compute the ephemerides for July 7th, 2022:
 
@@ -148,7 +175,22 @@ def get_ephemerides(
     <AsterEphemerides rise_time=2022-07-07 22:27:00 culmination_time=2022-07-07 04:25:00 set_time=2022-07-07 10:20:00 aster=<Object type=PLANET name=NEPTUNE />>,
     <AsterEphemerides rise_time=2022-07-07 19:46:00 culmination_time=2022-07-07 00:41:00 set_time=2022-07-07 05:33:00 aster=<Object type=PLANET name=PLUTO />>]
 
-    Timezone can be optionnaly set to adapt the hours to your location:
+    UTC offset can be optionnaly set to adapt the hours to your location:
+
+    >>> get_ephemerides(Position(36.6794, 4.8555), date(2022, 7, 7), utc_offset=2)
+    [<AsterEphemerides rise_time=2022-07-07 06:29:00 culmination_time=2022-07-07 13:46:00 set_time=2022-07-07 21:02:00 aster=<Object type=STAR name=SUN />>,
+    <AsterEphemerides rise_time=2022-07-07 14:16:00 culmination_time=2022-07-07 20:06:00 set_time=2022-07-07 01:27:00 aster=<Object type=SATELLITE name=MOON />>,
+    <AsterEphemerides rise_time=2022-07-07 05:36:00 culmination_time=2022-07-07 12:58:00 set_time=2022-07-07 20:20:00 aster=<Object type=PLANET name=MERCURY />>,
+    <AsterEphemerides rise_time=2022-07-07 04:30:00 culmination_time=2022-07-07 11:44:00 set_time=2022-07-07 18:58:00 aster=<Object type=PLANET name=VENUS />>,
+    <AsterEphemerides rise_time=2022-07-07 02:05:00 culmination_time=2022-07-07 08:39:00 set_time=2022-07-07 15:14:00 aster=<Object type=PLANET name=MARS />>,
+    <AsterEphemerides rise_time=2022-07-07 01:02:00 culmination_time=2022-07-07 07:11:00 set_time=2022-07-07 13:20:00 aster=<Object type=PLANET name=JUPITER />>,
+    <AsterEphemerides rise_time=2022-07-07 23:06:00 culmination_time=2022-07-07 04:29:00 set_time=2022-07-07 09:48:00 aster=<Object type=PLANET name=SATURN />>,
+    <AsterEphemerides rise_time=2022-07-07 02:47:00 culmination_time=2022-07-07 09:42:00 set_time=2022-07-07 16:38:00 aster=<Object type=PLANET name=URANUS />>,
+    <AsterEphemerides rise_time=2022-07-07 00:31:00 culmination_time=2022-07-07 06:25:00 set_time=2022-07-07 12:20:00 aster=<Object type=PLANET name=NEPTUNE />>,
+    <AsterEphemerides rise_time=2022-07-07 21:46:00 culmination_time=2022-07-07 02:41:00 set_time=2022-07-07 07:33:00 aster=<Object type=PLANET name=PLUTO />>]
+
+
+    Note that the `utc_offset` argument was named `timezone` before version 1.1. The old name still works, but will be dropped in the future.
 
     >>> get_ephemerides(Position(36.6794, 4.8555), date(2022, 7, 7), timezone=2)
     [<AsterEphemerides rise_time=2022-07-07 06:29:00 culmination_time=2022-07-07 13:46:00 set_time=2022-07-07 21:02:00 aster=<Object type=STAR name=SUN />>,
@@ -161,7 +203,6 @@ def get_ephemerides(
     <AsterEphemerides rise_time=2022-07-07 02:47:00 culmination_time=2022-07-07 09:42:00 set_time=2022-07-07 16:38:00 aster=<Object type=PLANET name=URANUS />>,
     <AsterEphemerides rise_time=2022-07-07 00:31:00 culmination_time=2022-07-07 06:25:00 set_time=2022-07-07 12:20:00 aster=<Object type=PLANET name=NEPTUNE />>,
     <AsterEphemerides rise_time=2022-07-07 21:46:00 culmination_time=2022-07-07 02:41:00 set_time=2022-07-07 07:33:00 aster=<Object type=PLANET name=PLUTO />>]
-
 
     Objects may not rise or set on the given date (e.g. they rise the previous day or set the next day).
     In this case, you will get `None` values on the rise or set time.
@@ -226,9 +267,15 @@ def get_ephemerides(
           ...
       kosmorrolib.exceptions.OutOfRangeDateError: The date must be between 1899-07-29 and 2053-10-07
 
-    - The date given in parameter is considered as being given from the point of view of the given timezone.
-      Using a timezone that does not correspond to the place's actual one can impact the returned times.
+    - The date given in parameter is considered as being given from the point of view of the given UTC offset.
+      Using a UTC offset that does not correspond to the place's actual one can impact the returned times.
     """
+
+    if argv.get("timezone") is not None:
+        alert_deprecation(
+            "'timezone' argument of the get_ephemerides() function is deprecated. Use utc_offset instead."
+        )
+        utc_offset = argv.get("timezone")
 
     def get_angle(for_aster: Object):
         def fun(time: Time) -> float:
@@ -251,15 +298,15 @@ def get_ephemerides(
         fun.rough_period = 0.5
         return fun
 
-    # The date given in argument is supposed to be given in the given timezone (more natural for a human),
-    # but we need it in UTC. Subtracting the timezone to get it in UTC.
+    # The date given in argument is supposed to be given in the given UTC offset (more natural for a human),
+    # but we need it in UTC. Subtracting the offset to get it in UTC.
 
     start_time = get_timescale().utc(
-        for_date.year, for_date.month, for_date.day, -timezone
+        for_date.year, for_date.month, for_date.day, -utc_offset
     )
 
     end_time = get_timescale().utc(
-        for_date.year, for_date.month, for_date.day + 1, -timezone
+        for_date.year, for_date.month, for_date.day + 1, -utc_offset
     )
 
     ephemerides = []
@@ -276,7 +323,7 @@ def get_ephemerides(
 
             for i, time in enumerate(times):
                 time_dt = normalize_datetime(
-                    translate_to_timezone(time.utc_datetime(), to_tz=timezone)
+                    translate_to_utc_offset(time.utc_datetime(), to_tz=utc_offset)
                 )
 
                 if time_dt is not None and time_dt.day != for_date.day:
@@ -289,9 +336,9 @@ def get_ephemerides(
 
             if culmination_time is not None:
                 culmination_time = normalize_datetime(
-                    translate_to_timezone(
+                    translate_to_utc_offset(
                         culmination_time.utc_datetime(),
-                        to_tz=timezone,
+                        to_tz=utc_offset,
                     )
                 )
 
@@ -299,8 +346,8 @@ def get_ephemerides(
                 AsterEphemerides(rise_time, culmination_time, set_time, aster=aster)
             )
     except EphemerisRangeError as error:
-        start = translate_to_timezone(error.start_time.utc_datetime(), timezone)
-        end = translate_to_timezone(error.end_time.utc_datetime(), timezone)
+        start = translate_to_utc_offset(error.start_time.utc_datetime(), utc_offset)
+        end = translate_to_utc_offset(error.end_time.utc_datetime(), utc_offset)
 
         start = date(start.year, start.month, start.day + 1)
         end = date(end.year, end.month, end.day - 1)

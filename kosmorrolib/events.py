@@ -17,6 +17,7 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from datetime import date, timedelta
+from typing import Union
 
 from skyfield.errors import EphemerisRangeError
 from skyfield.timelib import Time
@@ -34,14 +35,20 @@ from kosmorrolib.model import (
     ASTERS,
     EARTH,
 )
-from kosmorrolib.dateutil import translate_to_timezone
+from kosmorrolib.dateutil import translate_to_utc_offset
 from kosmorrolib.enum import EventType, ObjectIdentifier, SeasonType, LunarEclipseType
 from kosmorrolib.exceptions import InvalidDateRangeError, OutOfRangeDateError
-from kosmorrolib.core import get_timescale, get_skf_objects, flatten_list
+from kosmorrolib.core import (
+    get_timescale,
+    get_skf_objects,
+    flatten_list,
+    deprecated,
+    alert_deprecation,
+)
 
 
 def _search_conjunctions_occultations(
-    start_time: Time, end_time: Time, timezone: int
+    start_time: Time, end_time: Time, utc_offset: Union[int, float]
 ) -> [Event]:
     """Function to search conjunction.
 
@@ -118,7 +125,9 @@ def _search_conjunctions_occultations(
                             Event(
                                 EventType.OCCULTATION,
                                 occulting_aster,
-                                translate_to_timezone(time.utc_datetime(), timezone),
+                                translate_to_utc_offset(
+                                    time.utc_datetime(), utc_offset
+                                ),
                             )
                         )
                     else:
@@ -126,7 +135,9 @@ def _search_conjunctions_occultations(
                             Event(
                                 EventType.CONJUNCTION,
                                 [aster1, aster2],
-                                translate_to_timezone(time.utc_datetime(), timezone),
+                                translate_to_utc_offset(
+                                    time.utc_datetime(), utc_offset
+                                ),
                             )
                         )
 
@@ -135,7 +146,9 @@ def _search_conjunctions_occultations(
     return events
 
 
-def _search_oppositions(start_time: Time, end_time: Time, timezone: int) -> [Event]:
+def _search_oppositions(
+    start_time: Time, end_time: Time, utc_offset: Union[int, float]
+) -> [Event]:
     """Function to search oppositions.
 
     **Warning:** this is an internal function, not intended for use by end-developers.
@@ -198,7 +211,7 @@ def _search_oppositions(start_time: Time, end_time: Time, timezone: int) -> [Eve
                 Event(
                     EventType.OPPOSITION,
                     [aster],
-                    translate_to_timezone(time.utc_datetime(), timezone),
+                    translate_to_utc_offset(time.utc_datetime(), utc_offset),
                 )
             )
 
@@ -206,7 +219,7 @@ def _search_oppositions(start_time: Time, end_time: Time, timezone: int) -> [Eve
 
 
 def _search_maximal_elongations(
-    start_time: Time, end_time: Time, timezone: int
+    start_time: Time, end_time: Time, utc_offset: Union[int, float]
 ) -> [Event]:
     """Function to search oppositions.
 
@@ -249,7 +262,7 @@ def _search_maximal_elongations(
                 Event(
                     EventType.MAXIMAL_ELONGATION,
                     [planet],
-                    translate_to_timezone(time.utc_datetime(), timezone),
+                    translate_to_utc_offset(time.utc_datetime(), utc_offset),
                     details={"deg": float(elongation)},
                 )
             )
@@ -283,7 +296,7 @@ def _search_apogee(to_aster: Object, from_aster: Object = EARTH) -> callable:
     [<Event type=APOGEE objects=[<Object type=PLANET name=EARTH />] start=2021-07-05 22:35:42.148792+00:00 end=None details={'distance_km': 152100521.91712126} />]
     """
 
-    def f(start_time: Time, end_time: Time, timezone: int) -> [Event]:
+    def f(start_time: Time, end_time: Time, utc_offset: Union[int, float]) -> [Event]:
         events = []
 
         times, distances = find_maxima(
@@ -298,7 +311,7 @@ def _search_apogee(to_aster: Object, from_aster: Object = EARTH) -> callable:
                 Event(
                     EventType.APOGEE,
                     [to_aster],
-                    translate_to_timezone(time.utc_datetime(), timezone),
+                    translate_to_utc_offset(time.utc_datetime(), utc_offset),
                     details={"distance_km": float(distances[i])},
                 )
             )
@@ -322,7 +335,7 @@ def _search_perigee(aster: Object, from_aster: Object = EARTH) -> callable:
     [<Event type=PERIGEE objects=[<Object type=PLANET name=EARTH />] start=2021-01-02 13:59:00.495905+00:00 end=None details={'distance_km': 147093166.1686309} />]
     """
 
-    def f(start_time: Time, end_time: Time, timezone: int) -> [Event]:
+    def f(start_time: Time, end_time: Time, utc_offset: Union[int, float]) -> [Event]:
         events = []
 
         times, distances = find_minima(
@@ -337,7 +350,7 @@ def _search_perigee(aster: Object, from_aster: Object = EARTH) -> callable:
                 Event(
                     EventType.PERIGEE,
                     [aster],
-                    translate_to_timezone(time.utc_datetime(), timezone),
+                    translate_to_utc_offset(time.utc_datetime(), utc_offset),
                     details={"distance_km": float(distances[i])},
                 )
             )
@@ -348,7 +361,7 @@ def _search_perigee(aster: Object, from_aster: Object = EARTH) -> callable:
 
 
 def _search_earth_season_change(
-    start_time: Time, end_time: Time, timezone: int
+    start_time: Time, end_time: Time, utc_offset: Union[int, float]
 ) -> [Event]:
     """Function to find earth season change event.
 
@@ -379,14 +392,16 @@ def _search_earth_season_change(
         Event(
             EventType.SEASON_CHANGE,
             [],
-            translate_to_timezone(event_time.utc_datetime()[0], timezone),
+            translate_to_utc_offset(event_time.utc_datetime()[0], utc_offset),
             details={"season": SeasonType(event_id[0])},
         )
     )
     return events
 
 
-def _search_lunar_eclipse(start_time: Time, end_time: Time, timezone: int) -> [Event]:
+def _search_lunar_eclipse(
+    start_time: Time, end_time: Time, utc_offset: Union[int, float]
+) -> [Event]:
     """Function to detect lunar eclipses.
 
     **Warning:** this is an internal function, not intended for use by end-developers.
@@ -444,13 +459,15 @@ def _search_lunar_eclipse(start_time: Time, end_time: Time, timezone: int) -> [E
             Event(
                 EventType.LUNAR_ECLIPSE,
                 [moon],
-                start_time=translate_to_timezone(
-                    eclipse_start[0].utc_datetime(), timezone
+                start_time=translate_to_utc_offset(
+                    eclipse_start[0].utc_datetime(), utc_offset
                 ),
-                end_time=translate_to_timezone(eclipse_end[0].utc_datetime(), timezone),
+                end_time=translate_to_utc_offset(
+                    eclipse_end[0].utc_datetime(), utc_offset
+                ),
                 details={
                     "type": LunarEclipseType(yi),
-                    "maximum": translate_to_timezone(ti.utc_datetime(), timezone),
+                    "maximum": translate_to_utc_offset(ti.utc_datetime(), utc_offset),
                 },
             )
         )
@@ -458,23 +475,30 @@ def _search_lunar_eclipse(start_time: Time, end_time: Time, timezone: int) -> [E
     return events
 
 
-def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
-    """Calculate and return a list of events for the given date, adjusted to the given timezone if any.
+def get_events(
+    for_date: date = date.today(), utc_offset: Union[int, float] = 0, **argv
+) -> [Event]:
+    """Calculate and return a list of events for the given date, adjusted to the given UTC offset if any.
 
     Find events that happen on April 4th, 2020 (show hours in UTC):
 
     >>> get_events(date(2020, 4, 4))
     [<Event type=CONJUNCTION objects=[<Object type=PLANET name=MERCURY />, <Object type=PLANET name=NEPTUNE />] start=2020-04-04 01:14:39.063308+00:00 end=None details=None />]
 
-    Find events that happen on April 4th, 2020 (show timezones in UTC+2):
+    Find events that happen on April 4th, 2020 (displayed in UTC+2):
 
-    >>> get_events(date(2020, 4, 4), 2)
+    >>> get_events(date(2020, 4, 4), utc_offset=2)
     [<Event type=CONJUNCTION objects=[<Object type=PLANET name=MERCURY />, <Object type=PLANET name=NEPTUNE />] start=2020-04-04 03:14:39.063267+02:00 end=None details=None />]
 
-    Find events that happen on April 3rd, 2020 (show timezones in UTC-2):
+    Find events that happen on April 3rd, 2020 (displayed in UTC-2):
 
-    >>> get_events(date(2020, 4, 3), -2)
+    >>> get_events(date(2020, 4, 3), utc_offset=-2)
     [<Event type=CONJUNCTION objects=[<Object type=PLANET name=MERCURY />, <Object type=PLANET name=NEPTUNE />] start=2020-04-03 23:14:39.063388-02:00 end=None details=None />]
+
+    Note that the `utc_offset` argument was named `timezone` before version 1.1. The old name still works, but will be dropped in the future.
+
+    >>> get_events(date(2020, 4, 4), timezone=2)
+    [<Event type=CONJUNCTION objects=[<Object type=PLANET name=MERCURY />, <Object type=PLANET name=NEPTUNE />] start=2020-04-04 03:14:39.063267+02:00 end=None details=None />]
 
     If there is no events for the given date, then an empty list is returned:
 
@@ -490,15 +514,21 @@ def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
     kosmorrolib.exceptions.OutOfRangeDateError: The date must be between 1899-07-28 and 2053-10-08
 
     :param for_date: the date for which the events must be calculated
-    :param timezone: the timezone to adapt the results to. If not given, defaults to 0.
+    :param utc_offset: the UTC offset to adapt the results to. If not given, defaults to 0.
     :return: a list of events found for the given date.
     """
 
+    if argv.get("timezone") is not None:
+        alert_deprecation(
+            "'timezone' argument of the get_events() function is deprecated. Use utc_offset instead."
+        )
+        utc_offset = argv.get("timezone")
+
     start_time = get_timescale().utc(
-        for_date.year, for_date.month, for_date.day, -timezone
+        for_date.year, for_date.month, for_date.day, -utc_offset
     )
     end_time = get_timescale().utc(
-        for_date.year, for_date.month, for_date.day + 1, -timezone
+        for_date.year, for_date.month, for_date.day + 1, -utc_offset
     )
 
     try:
@@ -515,12 +545,14 @@ def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
             _search_earth_season_change,
             _search_lunar_eclipse,
         ]:
-            found_events.append(fun(start_time, end_time, timezone))
+            found_events.append(fun(start_time, end_time, utc_offset))
 
         return sorted(flatten_list(found_events), key=lambda event: event.start_time)
     except EphemerisRangeError as error:
-        start_date = translate_to_timezone(error.start_time.utc_datetime(), timezone)
-        end_date = translate_to_timezone(error.end_time.utc_datetime(), timezone)
+        start_date = translate_to_utc_offset(
+            error.start_time.utc_datetime(), utc_offset
+        )
+        end_date = translate_to_utc_offset(error.end_time.utc_datetime(), utc_offset)
 
         start_date = date(start_date.year, start_date.month, start_date.day)
         end_date = date(end_date.year, end_date.month, end_date.day)
@@ -529,9 +561,12 @@ def get_events(for_date: date = date.today(), timezone: int = 0) -> [Event]:
 
 
 def search_events(
-    event_types: [EventType], end: date, start: date = date.today(), timezone: int = 0
+    event_types: [EventType],
+    end: date,
+    start: date = date.today(),
+    utc_offset: Union[int, float] = 0,
 ) -> [Event]:
-    """Search between `start` and `end` dates, and return a list of matching events for the given time range, adjusted to a given timezone.
+    """Search between `start` and `end` dates, and return a list of matching events for the given time range, adjusted to a given UTC offset.
 
     Find all events between January 27th, 2020 and January 29th, 2020:
 
@@ -549,7 +584,7 @@ def search_events(
 
     Find Apogee events between January 27th, 2020 and January 29th, 2020 (show times in UTC-6):
 
-    >>> search_events([EventType.APOGEE], end=date(2020, 1, 29), start=date(2020, 1, 27), timezone=-6)
+    >>> search_events([EventType.APOGEE], end=date(2020, 1, 29), start=date(2020, 1, 27), utc_offset=-6)
     [<Event type=APOGEE objects=[<Object type=SATELLITE name=MOON />] start=2020-01-29 15:32:13.884314-06:00 end=None details={'distance_km': 405426.4150890029} />]
 
     If no events occurred in the given time range, an empty list is returned.
@@ -585,17 +620,21 @@ def search_events(
     moon = ASTERS[1]
     sun = ASTERS[0]
 
-    def search_all_apogee_events(start: date, end: date, timezone: int = 0) -> [Event]:
-        moon_apogee_events = _search_apogee(moon)(start, end, timezone)
+    def _search_all_apogee_events(
+        start: date, end: date, utc_offset: Union[int, float] = 0
+    ) -> [Event]:
+        moon_apogee_events = _search_apogee(moon)(start, end, utc_offset)
         earth_apogee_events = _search_apogee(EARTH, from_aster=sun)(
-            start, end, timezone
+            start, end, utc_offset
         )
         return moon_apogee_events + earth_apogee_events
 
-    def search_all_perigee_events(start: date, end: date, timezone: int = 0) -> [Event]:
-        moon_perigee_events = _search_perigee(moon)(start, end, timezone)
+    def _search_all_perigee_events(
+        start: date, end: date, utc_offset: Union[int, float] = 0
+    ) -> [Event]:
+        moon_perigee_events = _search_perigee(moon)(start, end, utc_offset)
         earth_perigee_events = _search_perigee(EARTH, from_aster=sun)(
-            start, end, timezone
+            start, end, utc_offset
         )
         return moon_perigee_events + earth_perigee_events
 
@@ -604,8 +643,8 @@ def search_events(
         EventType.CONJUNCTION: _search_conjunctions_occultations,
         EventType.OCCULTATION: _search_conjunctions_occultations,
         EventType.MAXIMAL_ELONGATION: _search_maximal_elongations,
-        EventType.APOGEE: search_all_apogee_events,
-        EventType.PERIGEE: search_all_perigee_events,
+        EventType.APOGEE: _search_all_apogee_events,
+        EventType.PERIGEE: _search_all_perigee_events,
         EventType.SEASON_CHANGE: _search_earth_season_change,
         EventType.LUNAR_ECLIPSE: _search_lunar_eclipse,
     }
@@ -613,22 +652,24 @@ def search_events(
     if start > end:
         raise InvalidDateRangeError(start, end)
 
-    start_time = get_timescale().utc(start.year, start.month, start.day, -timezone)
-    end_time = get_timescale().utc(end.year, end.month, end.day + 1, -timezone)
+    start_time = get_timescale().utc(start.year, start.month, start.day, -utc_offset)
+    end_time = get_timescale().utc(end.year, end.month, end.day + 1, -utc_offset)
 
     try:
         found_events = []
         for event_type in event_types:
             fun = search_funcs[event_type]
-            events = fun(start_time, end_time, timezone)
+            events = fun(start_time, end_time, utc_offset)
             for event in events:
                 if event not in found_events:
                     found_events.append(event)
 
         return sorted(flatten_list(found_events), key=lambda event: event.start_time)
     except EphemerisRangeError as error:
-        start_date = translate_to_timezone(error.start_time.utc_datetime(), timezone)
-        end_date = translate_to_timezone(error.end_time.utc_datetime(), timezone)
+        start_date = translate_to_utc_offset(
+            error.start_time.utc_datetime(), utc_offset
+        )
+        end_date = translate_to_utc_offset(error.end_time.utc_datetime(), utc_offset)
 
         start_date = date(start_date.year, start_date.month, start_date.day)
         end_date = date(end_date.year, end_date.month, end_date.day)
