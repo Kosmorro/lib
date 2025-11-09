@@ -1,3 +1,13 @@
+# [Version 1.0.12](https://github.com/Kosmorro/lib/compare/v1.0.12...v1.0.13) (2025-11-09)
+
+
+### Bug Fixes
+
+* add compatibility with the last version of NumPy ([#79](https://github.com/Kosmorro/lib/issues/79)) ([65075b1](https://github.com/Kosmorro/lib/commit/65075b1c312c1de8fbcf33552f95d7be5033ee9d))
+* add support for Python 3.14 ([af440e1](https://github.com/Kosmorro/lib/commit/af440e1e120397ac8658a4da9e968786ac064966))
+
+
+
 # [Version 1.0.12](https://github.com/Kosmorro/lib/compare/v1.0.11...v) (2025-03-16)
 
 ### Bug Fixes
