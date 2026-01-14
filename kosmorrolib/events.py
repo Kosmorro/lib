@@ -29,6 +29,7 @@ from math import pi
 from kosmorrolib.model import (
     Event,
     Object,
+    Position,
     Star,
     Planet,
     get_aster,
@@ -360,43 +361,50 @@ def _search_perigee(aster: Object, from_aster: Object = EARTH) -> callable:
     return f
 
 
-def _search_earth_season_change(
-    start_time: Time, end_time: Time, utc_offset: Union[int, float]
-) -> [Event]:
-    """Function to find earth season change event.
+def _search_earth_season_change(position: Position | None):
+    def f(start_time: Time, end_time: Time, utc_offset: int) -> [Event]:
+        """Function to find earth season change event.
 
-    **Warning:** this is an internal function, not intended for use by end-developers.
+        **Warning:** this is an internal function, not intended for use by end-developers.
 
-    Will return JUNE SOLSTICE on 2020/06/20:
+        Will return JUNE SOLSTICE on 2020/06/20:
 
-    >>> season_change = _search_earth_season_change(get_timescale().utc(2020, 6, 20), get_timescale().utc(2020, 6, 21), 0)
-    >>> len(season_change)
-    1
-    >>> season_change[0].event_type
-    <EventType.SEASON_CHANGE: 7>
-    >>> season_change[0].details
-    {'season': <SeasonType.JUNE_SOLSTICE: 1>}
+        >>> season_change = _search_earth_season_change(get_timescale().utc(2020, 6, 20), get_timescale().utc(2020, 6, 21), 0)
+        >>> len(season_change)
+        1
+        >>> season_change[0].event_type
+        <EventType.SEASON_CHANGE: 7>
+        >>> season_change[0].details
+        {'season': <SeasonType.JUNE_SOLSTICE: 1>}
 
-    Will return nothing if there is no season change event in the period of time being calculated:
+        Will return nothing if there is no season change event in the period of time being calculated:
 
-    >>> _search_earth_season_change(get_timescale().utc(2021, 6, 17), get_timescale().utc(2021, 6, 18), 0)
-    []
-    """
-    events = []
-    event_time, event_id = almanac.find_discrete(
-        start_time, end_time, almanac.seasons(get_skf_objects())
-    )
-    if len(event_time) == 0:
-        return []
-    events.append(
-        Event(
-            EventType.SEASON_CHANGE,
-            [],
-            translate_to_utc_offset(event_time.utc_datetime()[0], utc_offset),
-            details={"season": SeasonType(event_id[0])},
+        >>> _search_earth_season_change(get_timescale().utc(2021, 6, 17), get_timescale().utc(2021, 6, 18), 0)
+        []
+        """
+        events = []
+        event_time, event_id = almanac.find_discrete(
+            start_time, end_time, almanac.seasons(get_skf_objects())
         )
-    )
-    return events
+        if len(event_time) == 0:
+            return []
+
+        season = SeasonType(event_id[0])
+
+        if position is not None:
+            season = season.localize(position)
+
+        events.append(
+            Event(
+                EventType.SEASON_CHANGE,
+                [],
+                translate_to_timezone(event_time.utc_datetime()[0], timezone),
+                details={"season": season},
+            )
+        )
+        return events
+
+    return f
 
 
 def _search_lunar_eclipse(
@@ -476,9 +484,12 @@ def _search_lunar_eclipse(
 
 
 def get_events(
-    for_date: date = date.today(), utc_offset: Union[int, float] = 0, **argv
+    for_date: date = date.today(),
+    utc_offset: Union[int, float] = 0,
+    position: Position | None = None,
+    **argv
 ) -> [Event]:
-    """Calculate and return a list of events for the given date, adjusted to the given UTC offset if any.
+    """Calculate and return a list of events for the given date, adjusted to the given timezone if any.
 
     Find events that happen on April 4th, 2020 (show hours in UTC):
 
@@ -514,7 +525,8 @@ def get_events(
     kosmorrolib.exceptions.OutOfRangeDateError: The date must be between 1899-07-28 and 2053-10-08
 
     :param for_date: the date for which the events must be calculated
-    :param utc_offset: the UTC offset to adapt the results to. If not given, defaults to 0.
+    :param utc_offset: the timezone to adapt the results to. If not given, defaults to 0.
+    :param position: the position to localize the events to.
     :return: a list of events found for the given date.
     """
 
@@ -542,7 +554,7 @@ def get_events(
             _search_perigee(ASTERS[1]),
             _search_apogee(EARTH, from_aster=ASTERS[0]),
             _search_perigee(EARTH, from_aster=ASTERS[0]),
-            _search_earth_season_change,
+            _search_earth_season_change(position),
             _search_lunar_eclipse,
         ]:
             found_events.append(fun(start_time, end_time, utc_offset))
@@ -565,6 +577,7 @@ def search_events(
     end: date,
     start: date = date.today(),
     utc_offset: Union[int, float] = 0,
+    position: Position | None = None,
 ) -> [Event]:
     """Search between `start` and `end` dates, and return a list of matching events for the given time range, adjusted to a given UTC offset.
 
@@ -645,7 +658,7 @@ def search_events(
         EventType.MAXIMAL_ELONGATION: _search_maximal_elongations,
         EventType.APOGEE: _search_all_apogee_events,
         EventType.PERIGEE: _search_all_perigee_events,
-        EventType.SEASON_CHANGE: _search_earth_season_change,
+        EventType.SEASON_CHANGE: _search_earth_season_change(position),
         EventType.LUNAR_ECLIPSE: _search_lunar_eclipse,
     }
 

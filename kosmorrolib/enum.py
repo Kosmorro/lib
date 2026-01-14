@@ -38,6 +38,61 @@ class SeasonType(Enum):
     SEPTEMBER_EQUINOX = 2
     DECEMBER_SOLSTICE = 3
 
+    def localize(self, position: Position) -> LocalizedSeasonType:
+        """Return the local season that corresponds to the given position's latitude.
+
+        Args:
+            season (SeasonType): The season to localize.
+            position (Position): The position to localize the season for.
+
+        Returns:
+            SeasonType: The localized season.
+
+        Raises:
+            ValueError: If the latitude is 0 (equator).
+
+        )
+
+        >>> from kosmorrolib import Position
+        >>> SeasonType.MARCH_EQUINOX.localize(Position(0, 1))
+        Traceback (most recent call last):
+            ...
+        ValueError: Cannot localize seasons for this latitude.
+
+        >>> SeasonType.MARCH_EQUINOX.localize(Position(1, 1))
+        <LocalizedSeasonType.SPRING: 1>
+
+        >>> SeasonType.MARCH_EQUINOX.localize(Position(-1, 1))
+        <LocalizedSeasonType.AUTUMN: 3>
+        """
+        if position.latitude == 0:  # Equator
+            raise ValueError("Cannot localize seasons for this latitude.")
+
+        if position.latitude < 0:  # Southern hemisphere
+            seasons = {
+                self.MARCH_EQUINOX: LocalizedSeasonType.AUTUMN,
+                self.JUNE_SOLSTICE: LocalizedSeasonType.WINTER,
+                self.SEPTEMBER_EQUINOX: LocalizedSeasonType.SPRING,
+                self.DECEMBER_SOLSTICE: LocalizedSeasonType.SUMMER,
+            }
+
+        else:  # Nothern hemisphere
+            seasons = {
+                self.MARCH_EQUINOX: LocalizedSeasonType.SPRING,
+                self.JUNE_SOLSTICE: LocalizedSeasonType.SUMMER,
+                self.SEPTEMBER_EQUINOX: LocalizedSeasonType.AUTUMN,
+                self.DECEMBER_SOLSTICE: LocalizedSeasonType.WINTER,
+            }
+
+        return seasons[self]
+
+
+class LocalizedSeasonType(Enum):
+    WINTER = 0
+    SPRING = 1
+    SUMMER = 2
+    AUTUMN = 3
+
 
 class EventType(Enum):
     """An enumeration for the supported event types."""

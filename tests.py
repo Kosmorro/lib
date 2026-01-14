@@ -9,7 +9,7 @@ if __name__ == "__main__":
     failures = 0
     tests = 0
 
-    for module in [events, ephemerides, model]:
+    for module in [events, ephemerides, model, enum]:
         (f, t) = testmod(module, optionflags=NORMALIZE_WHITESPACE)
         failures += f
         tests += t
