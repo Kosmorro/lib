@@ -1,6 +1,6 @@
 # ![Kosmorrolib](https://raw.githubusercontent.com/Kosmorro/logos/main/kosmorrolib/kosmorrolib-artwork.jpg)
 
-[![Coverage Status](https://coveralls.io/repos/github/Kosmorro/lib/badge.svg?branch=main)](https://coveralls.io/github/Kosmorro/lib?branch=main) [![Version on PyPI](https://img.shields.io/pypi/v/kosmorrolib)](https://pypi.org/project/kosmorrolib)  [![IRC: #kosmorro on Libera.Chat](https://img.shields.io/badge/Libera.Chat-%23kosmorro-blueviolet)](https://web.libera.chat/?nick=Astronaut?#kosmorro)
+[![Coverage Status](https://coveralls.io/repos/github/Kosmorro/lib/badge.svg?branch=main)](https://coveralls.io/github/Kosmorro/lib?branch=main) [![Version on PyPI](https://img.shields.io/pypi/v/kosmorrolib)](https://pypi.org/project/kosmorrolib) [![Matrix: #kosmorrolib:matrix.org](https://img.shields.io/matrix/kosmorrolib%3Amatrix.org?logo=matrix)](https://matrix.to/#/#kosmorrolib:matrix.org)
 
 Kosmorrolib is the Python library internally used in Kosmorro. It provides easy-to-use functions for your calculation needs.
 
