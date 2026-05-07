@@ -30,55 +30,12 @@ from .core import (
     get_skf_objects,
     get_timescale,
     get_iau2000b,
-    deprecated,
     alert_deprecation,
 )
 from .enum import MoonPhaseType
 from .exceptions import OutOfRangeDateError
 
 RISEN_ANGLE = -0.8333
-
-
-def _get_skyfield_to_moon_phase(
-    times: [Time], vals: [int], now: Time, utc_offset: Union[int, float]
-) -> Union[MoonPhase, None]:
-    tomorrow = get_timescale().utc(
-        now.utc_datetime().year, now.utc_datetime().month, now.utc_datetime().day + 1
-    )
-
-    next_phase_time = None
-    i = 0
-
-    # Find the current moon phase:
-    for i, time in enumerate(times):
-        if now.utc_datetime() <= time.utc_datetime():
-            if time.utc_datetime() >= tomorrow.utc_datetime():
-                i -= 1
-            break
-
-    current_phase = MoonPhaseType(vals[i])
-
-    if current_phase in [
-        MoonPhaseType.NEW_MOON,
-        MoonPhaseType.FIRST_QUARTER,
-        MoonPhaseType.FULL_MOON,
-        MoonPhaseType.LAST_QUARTER,
-    ]:
-        current_phase_time = translate_to_utc_offset(
-            times[i].utc_datetime(), utc_offset
-        )
-    else:
-        current_phase_time = None
-
-    # Find the next moon phase
-    for j in range(i + 1, len(times)):
-        if vals[j] in [0, 2, 4, 6]:
-            next_phase_time = translate_to_utc_offset(
-                times[j].utc_datetime(), utc_offset
-            )
-            break
-
-    return MoonPhase(current_phase, current_phase_time, next_phase_time)
 
 
 def get_moon_phase(
@@ -115,6 +72,49 @@ def get_moon_phase(
         ...
     kosmorrolib.exceptions.OutOfRangeDateError: The date must be between 1899-08-09 and 2053-09-26
     """
+
+    def _get_skyfield_to_moon_phase(
+        times: [Time], vals: [int], now: Time, utc_offset: Union[int, float]
+    ):
+        tomorrow = get_timescale().utc(
+            now.utc_datetime().year,
+            now.utc_datetime().month,
+            now.utc_datetime().day + 1,
+        )
+
+        next_phase_time = None
+        i = 0
+
+        # Find the current moon phase:
+        for i, time in enumerate(times):
+            if now.utc_datetime() <= time.utc_datetime():
+                if time.utc_datetime() >= tomorrow.utc_datetime():
+                    i -= 1
+                break
+
+        current_phase = MoonPhaseType(vals[i])
+
+        if current_phase in [
+            MoonPhaseType.NEW_MOON,
+            MoonPhaseType.FIRST_QUARTER,
+            MoonPhaseType.FULL_MOON,
+            MoonPhaseType.LAST_QUARTER,
+        ]:
+            current_phase_time = translate_to_utc_offset(
+                times[i].utc_datetime(), utc_offset
+            )
+        else:
+            current_phase_time = None
+
+        # Find the next moon phase
+        for j in range(i + 1, len(times)):
+            if vals[j] in [0, 2, 4, 6]:
+                next_phase_time = translate_to_utc_offset(
+                    times[j].utc_datetime(), utc_offset
+                )
+                break
+
+        return MoonPhase(current_phase, current_phase_time, next_phase_time)
 
     if argv.get("timezone") is not None:
         alert_deprecation(
@@ -275,7 +275,8 @@ def get_ephemerides(
         alert_deprecation(
             "'timezone' argument of the get_ephemerides() function is deprecated. Use utc_offset instead."
         )
-        utc_offset = argv.get("timezone")
+
+        return get_ephemerides(position, for_date, argv.get("timezone"))
 
     def get_angle(for_aster: Object):
         def fun(time: Time) -> float:
