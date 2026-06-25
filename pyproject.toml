@@ -1,7 +1,9 @@
-[tool.poetry]
+[project]
 name = "kosmorrolib"
 version = "1.0.13"
-authors = ["Jérôme Deuchnord <jerome@deuchnord.fr>"]
+authors = [
+    { name = "Jérôme Deuchnord", email = "jerome@deuchnord.fr" }
+]
 homepage = "https://kosmorro.space/lib"
 repository = "https://github.com/Kosmorro/lib"
 documentation = "https://kosmorro.space/lib/doc"
@@ -9,6 +11,20 @@ keywords = ["kosmorro", "astronomy", "ephemerides", "ephemeris"]
 license = "AGPL-3.0-or-later"
 description = "A library to computes the ephemerides."
 readme = "README.md"
+
+requires-python = "^3.8"
+dependencies = [
+    "skyfield (>=1.49,<2.0)",
+
+    # handling Python constraints of older versions of NumPy
+    "numpy (>=1.0,<1.25) ; python_version == '3.8'",
+    "numpy (>=2.0,<2.1) ; python_version == '3.9'",
+    "numpy (>=2.1,<2.3) ; python_version == '3.10'",
+    "numpy (>=2.3,<3.0) ; python_version >= '3.11'",
+
+    "skyfield-data (>=7.0.0)",
+    "python-dateutil (>=2.8,<3.0)"
+]
 
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -19,16 +35,6 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-skyfield = "^1.49"
-numpy = [
-    { version = "<1.25", python = "3.8.*" },
-    { version = "<2.1", python = "3.9.*" },
-    { version = "<2.3", python = "3.10.*" },
-    { version = "^2.3", python = ">=3.11" },
-]
-skyfield-data = "*"
-python-dateutil = "^2.8"
 
 [tool.poetry.group.dev.dependencies]
 black = ">23.1,<25.0"
