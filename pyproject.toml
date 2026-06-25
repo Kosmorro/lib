@@ -12,16 +12,10 @@ license = "AGPL-3.0-or-later"
 description = "A library to computes the ephemerides."
 readme = "README.md"
 
-requires-python = "^3.8"
+requires-python = "^3.11"
 dependencies = [
     "skyfield (>=1.49,<2.0)",
-
-    # handling Python constraints of older versions of NumPy
-    "numpy (>=1.0,<1.25) ; python_version == '3.8'",
-    "numpy (>=2.0,<2.1) ; python_version == '3.9'",
-    "numpy (>=2.1,<2.3) ; python_version == '3.10'",
-    "numpy (>=2.3,<3.0) ; python_version >= '3.11'",
-
+    "numpy (>=2.3,<3.0)",
     "skyfield-data (>=7.0.0)",
     "python-dateutil (>=2.8,<3.0)"
 ]
@@ -34,13 +28,11 @@ classifiers = [
     "Intended Audience :: Education",
 ]
 
-[tool.poetry.dependencies]
-
 [tool.poetry.group.dev.dependencies]
-black = ">23.1,<25.0"
+black = ">=23.1"
 parameterized = "^0.9.0"
-coverage = "^6.1.2"
-coveralls = "^3.3.1"
+coverage = ">=6.1"
+coveralls = ">=3.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
